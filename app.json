@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "tin_hoc_admin",
+    "slug": "tin_hoc_admin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logoR.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.thaianh2003.tin_hoc_admin"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "af0cfceb-e187-4ce1-ac3b-80c8bbe443e9"
+      }
+    }
+  }
+}

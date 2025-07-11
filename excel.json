@@ -1,0 +1,1130 @@
+{
+  "questions": [
+    {
+
+      "question": "Để ẩn một cột đã chọn trong Microsoft Excel, ta nhấn tổ hợp phím:",
+      "options": [
+        "Ctrl+0",
+        "Ctrl+9",
+        "Ctrl+Shift+0",
+        "Ctrl+Shift+9"
+      ],
+      "answer": "Ctrl+0"
+    },
+    {
+
+      "question": "Để ẩn một hàng đã chọn trong Microsoft Excel, ta nhấn tổ hợp phím:",
+      "options": [
+        "Ctrl+9",
+        "Ctrl+0",
+        "Ctrl+Shift+9",
+        "Ctrl+Shift+0"
+      ],
+      "answer": "Ctrl+9"
+    },
+    {
+
+      "question": "Để hiện lại một cột đã ẩn trong Microsoft Excel, ta thực hiện:",
+      "options": [
+        "Chọn các cột liền kề, vào Home/Cells/Format/Visibility/Hide & Unhide/Unhide Columns",
+        "Chọn các cột liền kề, vào Home/Cells/Format/Visibility/Hide & Unhide/Unhide Rows",
+        "Chọn các cột liền kề, nhấn Ctrl+Shift+0",
+        "Chọn các cột liền kề, nhấn Ctrl+9"
+      ],
+      "answer": "Chọn các cột liền kề, vào Home/Cells/Format/Visibility/Hide & Unhide/Unhide Columns"
+    },
+    {
+
+      "question": "Để hiện lại một hàng đã ẩn trong Microsoft Excel, ta thực hiện:",
+      "options": [
+        "Chọn các hàng liền kề, vào Home/Cells/Format/Visibility/Hide & Unhide/Unhide Rows",
+        "Chọn các hàng liền kề, vào Home/Cells/Format/Visibility/Hide & Unhide/Unhide Columns",
+        "Chọn các hàng liền kề, nhấn Ctrl+Shift+9",
+        "Chọn các hàng liền kề, nhấn Ctrl+0"
+      ],
+      "answer": "Chọn các hàng liền kề, vào Home/Cells/Format/Visibility/Hide & Unhide/Unhide Rows"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để hiển thị số 1234567 thành dạng 1,234.567 ta chọn:",
+      "options": [
+        "Home/Number/Number Format/Comma Style",
+        "Home/Number/Number Format/Accounting",
+        "Home/Number/Number Format/Percentage",
+        "Home/Number/Number Format/Scientific"
+      ],
+      "answer": "Home/Number/Number Format/Comma Style"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để hiển thị số 1234.567 thành dạng tiền tệ $1,234.57 ta chọn:",
+      "options": [
+        "Home/Number/Number Format/Accounting",
+        "Home/Number/Number Format/Comma Style",
+        "Home/Number/Number Format/Percentage",
+        "Home/Number/Number Format/Scientific"
+      ],
+      "answer": "Home/Number/Number Format/Accounting"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để hiển thị số 0.456 thành dạng 45.6% ta chọn:",
+      "options": [
+        "Home/Number/Number Format/Percentage",
+        "Home/Number/Number Format/Comma Style",
+        "Home/Number/Number Format/Accounting",
+        "Home/Number/Number Format/Fraction"
+      ],
+      "answer": "Home/Number/Number Format/Percentage"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để hiển thị số 1234567 thành dạng 1.23E+06 ta chọn:",
+      "options": [
+        "Home/Number/Number Format/Scientific",
+        "Home/Number/Number Format/Accounting",
+        "Home/Number/Number Format/Comma Style",
+        "Home/Number/Number Format/Percentage"
+      ],
+      "answer": "Home/Number/Number Format/Scientific"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để hiển thị ngày tháng dạng 12/03/2023 từ dữ liệu nhập tay, ta chọn:",
+      "options": [
+        "Home/Number/Number Format/Date",
+        "Home/Number/Number Format/Time",
+        "Home/Number/Number Format/Short Date",
+        "Home/Number/Number Format/Long Date"
+      ],
+      "answer": "Home/Number/Number Format/Date"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để hiển thị thời gian dạng 14:30 từ dữ liệu nhập tay, ta chọn:",
+      "options": [
+        "Home/Number/Number Format/Time",
+        "Home/Number/Number Format/Date",
+        "Home/Number/Number Format/Short Time",
+        "Home/Number/Number Format/Long Time"
+      ],
+      "answer": "Home/Number/Number Format/Time"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, phím tắt để chèn ngày hiện tại là:",
+      "options": [
+        "Ctrl+;",
+        "Ctrl+Shift+;",
+        "Ctrl+Shift+#",
+        "Ctrl+/"
+      ],
+      "answer": "Ctrl+;"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, phím tắt để chèn thời gian hiện tại là:",
+      "options": [
+        "Ctrl+Shift+;",
+        "Ctrl+;",
+        "Ctrl+Shift+#",
+        "Ctrl+/"
+      ],
+      "answer": "Ctrl+Shift+;"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để sao chép nhanh công thức hoặc nội dung ô xuống các ô bên dưới, ta thực hiện:",
+      "options": [
+        "Click vào ô cần sao chép, di chuột đến góc dưới bên phải ô đến khi xuất hiện dấu +, sau đó kéo xuống",
+        "Click vào ô cần sao chép, nhấn Ctrl+C, sau đó chọn các ô đích và nhấn Ctrl+V",
+        "Click vào ô cần sao chép, nhấn Ctrl+D",
+        "Click vào ô cần sao chép, nhấn Ctrl+R"
+      ],
+      "answer": "Click vào ô cần sao chép, di chuột đến góc dưới bên phải ô đến khi xuất hiện dấu +, sau đó kéo xuống"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để sao chép nhanh công thức hoặc nội dung ô sang các ô bên phải, ta thực hiện:",
+      "options": [
+        "Click vào ô cần sao chép, di chuột đến góc dưới bên phải ô đến khi xuất hiện dấu +, sau đó kéo sang phải",
+        "Click vào ô cần sao chép, nhấn Ctrl+C, sau đó chọn các ô đích và nhấn Ctrl+V",
+        "Click vào ô cần sao chép, nhấn Ctrl+R",
+        "Click vào ô cần sao chép, nhấn Ctrl+D"
+      ],
+      "answer": "Click vào ô cần sao chép, di chuột đến góc dưới bên phải ô đến khi xuất hiện dấu +, sau đó kéo sang phải"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để sao chép nội dung ô sang ô bên dưới bằng phím tắt, ta dùng:",
+      "options": [
+        "Ctrl+D",
+        "Ctrl+R",
+        "Ctrl+C",
+        "Ctrl+V"
+      ],
+      "answer": "Ctrl+D"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để sao chép nội dung ô sang ô bên phải bằng phím tắt, ta dùng:",
+      "options": [
+        "Ctrl+R",
+        "Ctrl+D",
+        "Ctrl+C",
+        "Ctrl+V"
+      ],
+      "answer": "Ctrl+R"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để cố định một cột khi sao chép công thức, ta thêm ký tự gì trước ký hiệu cột:",
+      "options": [
+        "$",
+        "#",
+        "&",
+        "@"
+      ],
+      "answer": "$"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để cố định một dòng khi sao chép công thức, ta thêm ký tự gì trước số dòng:",
+      "options": [
+        "$",
+        "#",
+        "&",
+        "@"
+      ],
+      "answer": "$"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =SUM(A1:A10) có ý nghĩa gì?",
+      "options": [
+        "Tính tổng các giá trị từ ô A1 đến ô A10",
+        "Tính trung bình các giá trị từ ô A1 đến ô A10",
+        "Đếm số ô có giá trị từ ô A1 đến ô A10",
+        "Tìm giá trị lớn nhất từ ô A1 đến ô A10"
+      ],
+      "answer": "Tính tổng các giá trị từ ô A1 đến ô A10"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =AVERAGE(A1:A10) có ý nghĩa gì?",
+      "options": [
+        "Tính trung bình các giá trị từ ô A1 đến ô A10",
+        "Tính tổng các giá trị từ ô A1 đến ô A10",
+        "Đếm số ô có giá trị từ ô A1 đến ô A10",
+        "Tìm giá trị lớn nhất từ ô A1 đến ô A10"
+      ],
+      "answer": "Tính trung bình các giá trị từ ô A1 đến ô A10"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =COUNT(A1:A10) có ý nghĩa gì?",
+      "options": [
+        "Đếm số ô có giá trị số từ ô A1 đến ô A10",
+        "Tính tổng các giá trị từ ô A1 đến ô A10",
+        "Tính trung bình các giá trị từ ô A1 đến ô A10",
+        "Tìm giá trị nhỏ nhất từ ô A1 đến ô A10"
+      ],
+      "answer": "Đếm số ô có giá trị số từ ô A1 đến ô A10"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =MAX(A1:A10) có ý nghĩa gì?",
+      "options": [
+        "Tìm giá trị lớn nhất từ ô A1 đến ô A10",
+        "Tìm giá trị nhỏ nhất từ ô A1 đến ô A10",
+        "Tính tổng các giá trị từ ô A1 đến ô A10",
+        "Đếm số ô có giá trị từ ô A1 đến ô A10"
+      ],
+      "answer": "Tìm giá trị lớn nhất từ ô A1 đến ô A10"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =MIN(A1:A10) có ý nghĩa gì?",
+      "options": [
+        "Tìm giá trị nhỏ nhất từ ô A1 đến ô A10",
+        "Tìm giá trị lớn nhất từ ô A1 đến ô A10",
+        "Tính trung bình các giá trị từ ô A1 đến ô A10",
+        "Đếm số ô có giá trị từ ô A1 đến ô A10"
+      ],
+      "answer": "Tìm giá trị nhỏ nhất từ ô A1 đến ô A10"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =IF(A1>10, B1, C1) có ý nghĩa gì?",
+      "options": [
+        "Nếu A1 lớn hơn 10, lấy giá trị ô B1, ngược lại lấy giá trị ô C1",
+        "Nếu A1 nhỏ hơn 10, lấy giá trị ô B1, ngược lại lấy giá trị ô C1",
+        "Nếu A1 bằng 10, lấy giá trị ô B1, ngược lại lấy giá trị ô C1",
+        "Nếu A1 lớn hơn 10, lấy giá trị ô C1, ngược lại lấy giá trị ô B1"
+      ],
+      "answer": "Nếu A1 lớn hơn 10, lấy giá trị ô B1, ngược lại lấy giá trị ô C1"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =VLOOKUP(A1, B1:C10, 2, FALSE) có ý nghĩa gì?",
+      "options": [
+        "Tìm giá trị ô A1 trong cột đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở cột thứ 2, yêu cầu khớp chính xác",
+        "Tìm giá trị ô A1 trong cột đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở cột thứ 1, yêu cầu khớp chính xác",
+        "Tìm giá trị ô A1 trong cột đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở cột thứ 2, không yêu cầu khớp chính xác",
+        "Tìm giá trị ô A1 trong cột cuối cùng của vùng B1:C10 và trả về giá trị tương ứng ở cột thứ 2"
+      ],
+      "answer": "Tìm giá trị ô A1 trong cột đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở cột thứ 2, yêu cầu khớp chính xác"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, công thức =HLOOKUP(A1, B1:C10, 2, FALSE) có ý nghĩa gì?",
+      "options": [
+        "Tìm giá trị ô A1 trong hàng đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở hàng thứ 2, yêu cầu khớp chính xác",
+        "Tìm giá trị ô A1 trong hàng đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở hàng thứ 1, yêu cầu khớp chính xác",
+        "Tìm giá trị ô A1 trong hàng đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở hàng thứ 2, không yêu cầu khớp chính xác",
+        "Tìm giá trị ô A1 trong hàng cuối cùng của vùng B1:C10 và trả về giá trị tương ứng ở hàng thứ 2"
+      ],
+      "answer": "Tìm giá trị ô A1 trong hàng đầu tiên của vùng B1:C10 và trả về giá trị tương ứng ở hàng thứ 2, yêu cầu khớp chính xác"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để sắp xếp dữ liệu tăng dần theo cột A, ta thực hiện:",
+      "options": [
+        "Chọn vùng dữ liệu, vào Data/Sort/Sort by: chọn cột A, Order: Smallest to Largest",
+        "Chọn vùng dữ liệu, vào Data/Sort/Sort by: chọn cột A, Order: Largest to Smallest",
+        "Chọn vùng dữ liệu, vào Home/Sort/Sort by: chọn cột A, Order: Smallest to Largest",
+        "Chọn vùng dữ liệu, vào View/Sort/Sort by: chọn cột A, Order: Smallest to Largest"
+      ],
+      "answer": "Chọn vùng dữ liệu, vào Data/Sort/Sort by: chọn cột A, Order: Smallest to Largest"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để sắp xếp dữ liệu giảm dần theo cột B, ta thực hiện:",
+      "options": [
+        "Chọn vùng dữ liệu, vào Data/Sort/Sort by: chọn cột B, Order: Largest to Smallest",
+        "Chọn vùng dữ liệu, vào Data/Sort/Sort by: chọn cột B, Order: Smallest to Largest",
+        "Chọn vùng dữ liệu, vào Home/Sort/Sort by: chọn cột B, Order: Largest to Smallest",
+        "Chọn vùng dữ liệu, vào View/Sort/Sort by: chọn cột B, Order: Largest to Smallest"
+      ],
+      "answer": "Chọn vùng dữ liệu, vào Data/Sort/Sort by: chọn cột B, Order: Largest to Smallest"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để lọc dữ liệu trong cột A chỉ hiển thị các giá trị lớn hơn 100, ta thực hiện:",
+      "options": [
+        "Chọn vùng dữ liệu, vào Data/Filter, tại cột A chọn Number Filters/Greater Than, nhập 100",
+        "Chọn vùng dữ liệu, vào Data/Filter, tại cột A chọn Number Filters/Less Than, nhập 100",
+        "Chọn vùng dữ liệu, vào Home/Filter, tại cột A chọn Number Filters/Greater Than, nhập 100",
+        "Chọn vùng dữ liệu, vào View/Filter, tại cột A chọn Number Filters/Greater Than, nhập 100"
+      ],
+      "answer": "Chọn vùng dữ liệu, vào Data/Filter, tại cột A chọn Number Filters/Greater Than, nhập 100"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để xóa bộ lọc đã áp dụng, ta thực hiện:",
+      "options": [
+        "Vào Data/Sort & Filter/Clear",
+        "Vào Data/Sort & Filter/Remove Filter",
+        "Vào Home/Sort & Filter/Clear",
+        "Vào View/Sort & Filter/Clear"
+      ],
+      "answer": "Vào Data/Sort & Filter/Clear"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để chèn một hàng mới ngay trên hàng đang chọn, ta thực hiện:",
+      "options": [
+        "Home/Cells/Insert/Insert Sheet Rows",
+        "Home/Cells/Insert/Insert Sheet Columns",
+        "Home/Cells/Insert/Insert Cells",
+        "Home/Cells/Insert/Insert Sheet"
+      ],
+      "answer": "Home/Cells/Insert/Insert Sheet Rows"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để chèn một cột mới ngay bên trái cột đang chọn, ta thực hiện:",
+      "options": [
+        "Home/Cells/Insert/Insert Sheet Columns",
+        "Home/Cells/Insert/Insert Sheet Rows",
+        "Home/Cells/Insert/Insert Cells",
+        "Home/Cells/Insert/Insert Sheet"
+      ],
+      "answer": "Home/Cells/Insert/Insert Sheet Columns"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để xóa một hàng đang chọn, ta thực hiện:",
+      "options": [
+        "Home/Cells/Delete/Delete Sheet Rows",
+        "Home/Cells/Delete/Delete Sheet Columns",
+        "Home/Cells/Delete/Delete Cells",
+        "Home/Cells/Delete/Delete Sheet"
+      ],
+      "answer": "Home/Cells/Delete/Delete Sheet Rows"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để xóa một cột đang chọn, ta thực hiện:",
+      "options": [
+        "Home/Cells/Delete/Delete Sheet Columns",
+        "Home/Cells/Delete/Delete Sheet Rows",
+        "Home/Cells/Delete/Delete Cells",
+        "Home/Cells/Delete/Delete Sheet"
+      ],
+      "answer": "Home/Cells/Delete/Delete Sheet Columns"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để cố định dòng tiêu đề khi cuộn trang, ta thực hiện:",
+      "options": [
+        "View/Window/Freeze Panes/Freeze Top Row",
+        "View/Window/Freeze Panes/Freeze First Column",
+        "View/Window/Freeze Panes/Freeze Panes",
+        "Home/Window/Freeze Panes/Freeze Top Row"
+      ],
+      "answer": "View/Window/Freeze Panes/Freeze Top Row"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để cố định cột đầu tiên khi cuộn trang, ta thực hiện:",
+      "options": [
+        "View/Window/Freeze Panes/Freeze First Column",
+        "View/Window/Freeze Panes/Freeze Top Row",
+        "View/Window/Freeze Panes/Freeze Panes",
+        "Home/Window/Freeze Panes/Freeze First Column"
+      ],
+      "answer": "View/Window/Freeze Panes/Freeze First Column"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để cố định cả hàng và cột khi cuộn trang, ta thực hiện:",
+      "options": [
+        "Chọn ô ngay dưới hàng và bên phải cột cần cố định, vào View/Window/Freeze Panes/Freeze Panes",
+        "Chọn ô ngay dưới hàng và bên phải cột cần cố định, vào View/Window/Freeze Panes/Freeze Top Row",
+        "Chọn ô ngay dưới hàng và bên phải cột cần cố định, vào View/Window/Freeze Panes/Freeze First Column",
+        "Chọn ô ngay dưới hàng và bên phải cột cần cố định, vào Home/Window/Freeze Panes/Freeze Panes"
+      ],
+      "answer": "Chọn ô ngay dưới hàng và bên phải cột cần cố định, vào View/Window/Freeze Panes/Freeze Panes"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để bỏ cố định hàng hoặc cột, ta thực hiện:",
+      "options": [
+        "View/Window/Freeze Panes/Unfreeze Panes",
+        "View/Window/Freeze Panes/Freeze Panes",
+        "Home/Window/Freeze Panes/Unfreeze Panes",
+        "Data/Window/Freeze Panes/Unfreeze Panes"
+      ],
+      "answer": "View/Window/Freeze Panes/Unfreeze Panes"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để tạo biểu đồ cột từ dữ liệu, ta thực hiện:",
+      "options": [
+        "Chọn vùng dữ liệu, vào Insert/Charts/Column",
+        "Chọn vùng dữ liệu, vào Data/Charts/Column",
+        "Chọn vùng dữ liệu, vào Home/Charts/Column",
+        "Chọn vùng dữ liệu, vào View/Charts/Column"
+      ],
+      "answer": "Chọn vùng dữ liệu, vào Insert/Charts/Column"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để tạo biểu đồ đường từ dữ liệu, ta thực hiện:",
+      "options": [
+        "Chọn vùng dữ liệu, vào Insert/Charts/Line",
+        "Chọn vùng dữ liệu, vào Data/Charts/Line",
+        "Chọn vùng dữ liệu, vào Home/Charts/Line",
+        "Chọn vùng dữ liệu, vào View/Charts/Line"
+      ],
+      "answer": "Chọn vùng dữ liệu, vào Insert/Charts/Line"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để tạo biểu đồ tròn từ dữ liệu, ta thực hiện:",
+      "options": [
+        "Chọn vùng dữ liệu, vào Insert/Charts/Pie",
+        "Chọn vùng dữ liệu, vào Data/Charts/Pie",
+        "Chọn vùng dữ liệu, vào Home/Charts/Pie",
+        "Chọn vùng dữ liệu, vào View/Charts/Pie"
+      ],
+      "answer": "Chọn vùng dữ liệu, vào Insert/Charts/Pie"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để thêm tiêu đề cho biểu đồ, ta thực hiện:",
+      "options": [
+        "Chọn biểu đồ, vào Chart Tools/Design/Chart Layouts/Add Chart Element/Chart Title",
+        "Chọn biểu đồ, vào Chart Tools/Format/Chart Layouts/Add Chart Element/Chart Title",
+        "Chọn biểu đồ, vào Home/Chart Layouts/Add Chart Element/Chart Title",
+        "Chọn biểu đồ, vào Insert/Chart Layouts/Add Chart Element/Chart Title"
+      ],
+      "answer": "Chọn biểu đồ, vào Chart Tools/Design/Chart Layouts/Add Chart Element/Chart Title"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để thêm nhãn dữ liệu cho biểu đồ, ta thực hiện:",
+      "options": [
+        "Chọn biểu đồ, vào Chart Tools/Design/Chart Layouts/Add Chart Element/Data Labels",
+        "Chọn biểu đồ, vào Chart Tools/Format/Chart Layouts/Add Chart Element/Data Labels",
+        "Chọn biểu đồ, vào Home/Chart Layouts/Add Chart Element/Data Labels",
+        "Chọn biểu đồ, vào Insert/Chart Layouts/Add Chart Element/Data Labels"
+      ],
+      "answer": "Chọn biểu đồ, vào Chart Tools/Design/Chart Layouts/Add Chart Element/Data Labels"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để bảo vệ một sheet với mật khẩu, ta thực hiện:",
+      "options": [
+        "Review/Changes/Protect Sheet, nhập mật khẩu, nhấn OK",
+        "Review/Changes/Protect Workbook, nhập mật khẩu, nhấn OK",
+        "File/Info/Protect Sheet, nhập mật khẩu, nhấn OK",
+        "Home/Changes/Protect Sheet, nhập mật khẩu, nhấn OK"
+      ],
+      "answer": "Review/Changes/Protect Sheet, nhập mật khẩu, nhấn OK"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, để bỏ bảo vệ một sheet, ta thực hiện:",
+      "options": [
+        "Review/Changes/Unprotect Sheet, nhập mật khẩu, nhấn OK",
+        "Review/Changes/Unprotect Workbook, nhập mật khẩu, nhấn OK",
+        "File/Info/Unprotect Sheet, nhập mật khẩu, nhấn OK",
+        "Home/Changes/Unprotect Sheet, nhập mật khẩu, nhấn OK"
+      ],
+      "answer": "Review/Changes/Unprotect Sheet, nhập mật khẩu, nhấn OK"
+    },
+    {
+
+      "question": "Trong Microsoft Excel, giả sử tại ô A1 có chứa 'STT, Tên, Địa chỉ'. Nếu muốn tách 'STT, Tên, Địa chỉ' thành 3 cột (A1='STT', B1='Tên', C1='Địa chỉ') thì ta thực hiện:",
+      "options": [
+        "Chọn ô A1 rồi vào Data/Text to Columns, chọn Delimited, chọn dấu phẩy làm phân tách, nhấn Finish",
+        "Chọn ô A1 rồi vào Page Layout/Text to Columns, chọn Delimited, chọn dấu phẩy làm phân tách, nhấn Finish",
+        "Chọn ô A1 rồi vào Insert/Text to Columns, chọn Delimited, chọn dấu phẩy làm phân tách, nhấn Finish",
+        "Chọn ô A1 rồi vào View/Text to Columns, chọn Delimited, chọn dấu phẩy làm phân tách, nhấn Finish"
+      ],
+      "answer": "Chọn ô A1 rồi vào Data/Text to Columns, chọn Delimited, chọn dấu phẩy làm phân tách, nhấn Finish"
+    },
+    {
+      "question": "Trong Excel, để đặt tên một vùng gồm nhiều ô, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Formulas > chọn Name Manager > New > đặt tên vùng và chọn vùng cần đặt tên",
+        "Formulas > Define Name > đặt tên vùng và chọn vùng cần đặt tên",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "Cả 2 lựa chọn đều đúng"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc thay đổi tên các vùng ô, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Nhập tên vùng mới ở ô NameBox > Enter",
+        "Chọn Formulas > Name Manager > Edit > nhập tên vùng mới > Ok",
+        "Chọn Formulas > Define Name > nhập tên vùng > Ok",
+        "Chọn Formulas > Name Manager > New > Nhập tên vùng > Ok"
+      ],
+      "answer": "Chọn Formulas > Name Manager > Edit > nhập tên vùng mới > Ok"
+    },
+    {
+      "question": "Trong Excel, để xóa tên một vùng, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chọn vùng vào Review, chọn Delete",
+        "Chọn vùng vào Home > Clear > chọn Clear All",
+        "Vào Formulas > chọn Name Manager > chọn tên vùng > chọn Delete",
+        "Chuột phải vào vùng chọn > chọn Delete"
+      ],
+      "answer": "Vào Formulas > chọn Name Manager > chọn tên vùng > chọn Delete"
+    },
+    {
+      "question": "Trong Excel, để định dạng có điều kiện cho một vùng nhiều ô, bạn chọn vùng sau đó chọn lựa chọn nào?",
+      "options": [
+        "Home > Conditional Formatting > Manage Rule > New Rule",
+        "Home > Conditional Formatting > New Rule",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "Cả 2 lựa chọn đều đúng"
+    },
+    {
+      "question": "Trong Excel, chức năng Data > Data Validation dùng để làm gì?",
+      "options": [
+        "Ràng buộc dữ liệu trên các ô bảng tính khi nhập dữ liệu",
+        "Kiểm tra dữ liệu trên các ô chứa công thức",
+        "Tính toán các ô chưa khóa",
+        "Cả 3 câu trên đều sai"
+      ],
+      "answer": "Ràng buộc dữ liệu trên các ô bảng tính khi nhập dữ liệu"
+    },
+    {
+      "question": "Trong Excel, ràng buộc dữ liệu trên các ô bảng tính có dạng danh sách chọn?",
+      "options": [
+        "Data > Data Validation > Settings > Allow: List",
+        "Data > Data Validation > Settings > Allow: Text",
+        "Data > Data Validation > Settings > Allow: Number",
+        "Cả 3 câu đều đúng"
+      ],
+      "answer": "Data > Data Validation > Settings > Allow: List"
+    },
+    {
+      "question": "Trong Excel, chức năng Data > Data Validation > Settings > Text dùng để làm gì?",
+      "options": [
+        "Xuất kết quả tính toán là một chuỗi",
+        "Ràng buộc dữ liệu trên ô bảng tính khi nhập vào chỉ cho phép nhập vào là chuỗi",
+        "Ràng buộc dữ liệu trên các ô bảng tính khi nhập vào chỉ cho phép nhập vào là chuỗi có chiều dài xác định",
+        "Tất cả lựa chọn trên đều đúng"
+      ],
+      "answer": "Ràng buộc dữ liệu trên các ô bảng tính khi nhập vào chỉ cho phép nhập vào là chuỗi có chiều dài xác định"
+    },
+    {
+      "question": "Trong Excel, muốn thiết lập không chế dữ liệu nhập cho một vùng?",
+      "options": [
+        "Home > nhóm Cells > Format > Data Validation",
+        "Formulas > nhóm Data Tools > Data Validation",
+        "Data > nhóm Data Tools > What If Analysis > Data Validation",
+        "Data > nhóm Data Tools > Data Validation"
+      ],
+      "answer": "Data > nhóm Data Tools > Data Validation"
+    },
+    {
+      "question": "Trong Excel, để quy định dữ liệu nhập 1 số nguyên, sau khi chọn cột dữ liệu, chọn Data Validation, từ danh sách Allow, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Decimal",
+        "Date",
+        "Whole number",
+        "Text"
+      ],
+      "answer": "Whole number"
+    },
+    {
+      "question": "Trong Excel, trong công thức muốn sử dụng tên vùng đã đặt trực đó, ta nhấn phím?",
+      "options": [
+        "F3",
+        "Ctrl+F4",
+        "Alt+F3",
+        "F4"
+      ],
+      "answer": "F3"
+    },
+    {
+      "question": "Trong Excel, muốn chọn tất cả các ô có chứa công thức, bạn thực hiện như thế nào?",
+      "options": [
+        "View > nhóm Editing > Find & Select > Formulas",
+        "Home > nhóm Editing > Find & Select > Formulas",
+        "Formulas > nhóm Editing > Find & Select > Formulas",
+        "Home > nhóm Cells > Find & Select > Formulas"
+      ],
+      "answer": "Home > nhóm Editing > Find & Select > Formulas"
+    },
+    {
+      "question": "Trong Excel, cho biết cách tạo bảng tính dựa trên mẫu đang có?",
+      "options": [
+        "My Computer > chọn file Template > Right Click > Open",
+        "File > New > New From Existing > chọn file Template > chọn Create New",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "File > New > New From Existing > chọn file Template > chọn Create New"
+    },
+    {
+      "question": "Trong Excel, để định dạng kiểu tiền tệ cho một vùng bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chọn vùng cần định dạng và Home, mở hộp thoại Format Cells, chọn Currency tại thẻ Number",
+        "Chọn vùng cần định dạng vào Home, nhóm Number, hộp Number Format, chọn Currency",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "Cả 2 lựa chọn đều đúng"
+    },
+    {
+      "question": "Để chia tách một cửa sổ Excel theo chiều đứng, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chọn 1 dòng bất kỳ từ dòng 2 trở đi, vào View, chọn Split",
+        "Con trỏ tại vị trí bất kỳ, vào View, chọn Split",
+        "Chọn 1 cột bất kỳ từ cột B trở đi, vào View, chọn Split",
+        "Cả 3 lựa chọn trên đều đúng"
+      ],
+      "answer": "Chọn 1 cột bất kỳ từ cột B trở đi, vào View, chọn Split"
+    },
+    {
+      "question": "Để sắp xếp nhiều cửa sổ trong bảng tính ta chọn?",
+      "options": [
+        "Data > Sort",
+        "View > Arrange > Cascade",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "View > Arrange > Cascade"
+    },
+    {
+      "question": "Trong Excel, muốn định dạng của 1 ô, ta chọn?",
+      "options": [
+        "Home > nhóm Editing > Clear Formats",
+        "Nhấn phím Delete",
+        "Formulas > nhóm Editing > Clear > Clear Formats",
+        "Cả 3 đều sai"
+      ],
+      "answer": "Home > nhóm Editing > Clear Formats"
+    },
+    {
+      "question": "Trong Excel, muốn xóa quy luật định dạng có điều kiện theo nội dung cho 1 vùng?",
+      "options": [
+        "Chọn vùng cần thiết, vào Home, Conditional Formatting, Clear Rules, Chọn Clear Rules from Selected Cells",
+        "Chuột phải vào vùng cần thiết, chọn Clear Contents",
+        "Chọn vùng cần thiết, vào Home, Conditional Formatting, Clear Rules, chọn Clear Rules from Entire Sheet",
+        "Cả 3 lựa chọn trên đều sai"
+      ],
+      "answer": "Chọn vùng cần thiết, vào Home, Conditional Formatting, Clear Rules, Chọn Clear Rules from Selected Cells"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc định dạng có điều kiện theo nội dung ô, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chọn biểu tượng Conditional Formatting trên nhóm Styles của Tab Home",
+        "Chọn biểu tượng Cell Styles trên nhóm Styles của Tab Home",
+        "Chọn biểu tượng Format as Table trên nhóm Styles của Tab Home",
+        "Chọn biểu tượng Format trên nhóm Cells của Tab Home"
+      ],
+      "answer": "Chọn biểu tượng Conditional Formatting trên nhóm Styles của Tab Home"
+    },
+    {
+      "question": "Trong Excel, để xóa một bảng trục xoay (Pivot Table)?",
+      "options": [
+        "PivotTable Tools > Clear > Clear All",
+        "Chuột phải vào 1 ô trong Pivot Table > PivotTable Options",
+        "PivotTable Tools > Move PivotTable",
+        "Cả 3 lựa chọn trên đều sai"
+      ],
+      "answer": "PivotTable Tools > Clear > Clear All"
+    },
+    {
+      "question": "Để vẽ đồ thị thống kê theo cột và dòng, ta dùng?",
+      "options": [
+        "Consolidate",
+        "Pivot Table",
+        "Subtotal",
+        "Data Table"
+      ],
+      "answer": "Pivot Table"
+    },
+    {
+      "question": "Để tính giá trị trung bình của một cột?",
+      "options": [
+        "Dùng chức năng AutoSum, chọn Average",
+        "Dùng chức năng AutoSum, chọn Sum",
+        "Average",
+        "Sum"
+      ],
+      "answer": "Dùng chức năng AutoSum, chọn Average"
+    },
+    {
+      "question": "Trong bảng tính Excel 2010, khi tìm kiếm thì?",
+      "options": [
+        "Không phân biệt chữ thường, chữ hoa hay định dạng",
+        "Phân biệt chữ thường, chữ hoa",
+        "Không phân biệt chữ thường, chữ hoa, nhưng phân biệt định dạng",
+        "Cả 3 câu đều đúng"
+      ],
+      "answer": "Không phân biệt chữ thường, chữ hoa hay định dạng"
+    },
+    {
+      "question": "Trong bảng tính Excel 2010, muốn chuyển đổi dữ liệu trong table thành vùng dữ liệu trên Sheet ta phải làm sao?",
+      "options": [
+        "Chọn vùng danh sách trong Table, Right Click > Convert to Range",
+        "Chọn vùng danh sách trong Table, chọn Design > Convert to Range",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "Cả 2 lựa chọn đều đúng"
+    },
+    {
+      "question": "Để Excel chỉ tính toán lại công thức khi lưu file hoặc khi chọn Calculate Now (nhấn F9) sử dụng lựa chọn nào?",
+      "options": [
+        "Formulas > Calculation Options > Manual",
+        "File > Options > Formulas > chọn Manual > Ok",
+        "File > Options > Formulas > chọn Automatic > Ok",
+        "Formulas > Calculation Options > Calculate Now (F9)"
+      ],
+      "answer": "Formulas > Calculation Options > Manual"
+    },
+    {
+      "question": "Trong Excel, để làm ẩn một số cột của trang tính, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chọn các cột cần làm ẩn, vào Home > Format > chọn Hide & Unhide",
+        "Chọn các cột cần làm ẩn, vào View > Hide",
+        "Chuột phải vào biên cột > chọn Hide",
+        "Chọn các cột cần làm ẩn, vào Home > Format > chọn Hide & Unhide và Chuột phải vào biên cột > chọn Hide"
+      ],
+      "answer": "Chọn các cột cần làm ẩn, vào Home > Format > chọn Hide & Unhide và Chuột phải vào biên cột > chọn Hide"
+    },
+    {
+      "question": "Để ẩn cột đã chọn dùng tổ hợp phím?",
+      "options": [
+        "Ctrl+3",
+        "Ctrl+2",
+        "Ctrl+1",
+        "Ctrl+0"
+      ],
+      "answer": "Ctrl+0"
+    },
+    {
+      "question": "Để ẩn dòng đã chọn dùng tổ hợp phím?",
+      "options": [
+        "Ctrl+F9",
+        "Alt+9",
+        "Alt+F9",
+        "Ctrl+9"
+      ],
+      "answer": "Ctrl+9"
+    },
+    {
+      "question": "Để ẩn tên dòng và tên cột của trang tính, trong thẻ View ta chọn?",
+      "options": [
+        "Gridlines",
+        "Headings",
+        "Formula",
+        "Ruler"
+      ],
+      "answer": "Headings"
+    },
+    {
+      "question": "Khi tham chiếu đến vùng trong bảng tính, ta dùng hàm?",
+      "options": [
+        "INDIRECT",
+        "VLOOKUP",
+        "HLOOKUP",
+        "INDEX"
+      ],
+      "answer": "INDIRECT"
+    },
+    {
+      "question": "Muốn tham chiếu đến 1 vùng khác tập tin?",
+      "options": [
+        "Vùng đó phải được đặt tên",
+        "Tập tin đó phải được mở",
+        "Dùng hàm INDIRECT để được tham chiếu",
+        "Không thể thực hiện được"
+      ],
+      "answer": "Tập tin đó phải được mở"
+    },
+    {
+      "question": "Tính kết quả: INDIRECT('C'&RIGHT(C1,1)) với bảng dữ liệu: A1=A1, B1=B2, C1=C2, D1=D3, A2=120, B2=180, C2=570, D2=220",
+      "options": [
+        "120",
+        "180",
+        "570",
+        "220"
+      ],
+      "answer": "570"
+    },
+    {
+      "question": "Trong Excel, muốn chèn dữ liệu từ tập tin có kiểu TXT, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Tab Data > Get External Data > From Data",
+        "Tab Data > Get External Data > From Text",
+        "Tab Insert > Get External Data > From Text",
+        "Cả 3 lựa chọn trên đều sai"
+      ],
+      "answer": "Tab Data > Get External Data > From Text"
+    },
+    {
+      "question": "Trong Excel, muốn sắp xếp danh sách dữ liệu theo thứ tự tăng (giảm), bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Tab Data > Sort & Filter > Sort",
+        "Tab Review > Sort & Filter > Sort",
+        "Tab View > Sort & Filter > Sort",
+        "Tab Home > Sort & Filter > Sort"
+      ],
+      "answer": "Tab Data > Sort & Filter > Sort"
+    },
+    {
+      "question": "Gỡ bỏ chức năng lọc và sắp xếp dữ liệu tự động?",
+      "options": [
+        "Insert > Sort & Filter > Filter",
+        "View > Sort & Filter > Filter",
+        "Data > Sort & Filter > Filter",
+        "Home > Sort & Filter > Filter"
+      ],
+      "answer": "Data > Sort & Filter > Filter"
+    },
+    {
+      "question": "Dùng chức năng lọc Auto Filter cho cột số lượng có giá trị từ 10 trở lên, ta thực hiện?",
+      "options": [
+        ">10",
+        ">=10",
+        "Greater than 10",
+        "Greater than or Equal to 10"
+      ],
+      "answer": "Greater than or Equal to 10"
+    },
+    {
+      "question": "Trong Excel, muốn copy chuyển dòng thành cột và ngược lại cột thành dòng, ta chọn?",
+      "options": [
+        "Paste Value",
+        "Paste Formulas",
+        "Paste Transpose",
+        "Paste Formatting"
+      ],
+      "answer": "Paste Transpose"
+    },
+    {
+      "question": "Trong Excel, giả sử ô A4 chứa kết quả một công thức, để sao chép kết quả (chỉ lấy giá trị) vào ô A8, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Tại ô A4 > copy, tại ô A8 > Paste Special, chọn Value",
+        "Tại ô A4 > copy, tại ô A8 > Paste",
+        "Tại ô A8 > copy, tại ô A4 > Paste Special, chọn Formula",
+        "Tại ô A4 > copy, tại ô A8 > Paste Special, chọn Formula"
+      ],
+      "answer": "Tại ô A4 > copy, tại ô A8 > Paste Special, chọn Value"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc xóa các nhận xét (comment) tại một dòng hay một cột, bạn dùng lựa chọn nào?",
+      "options": [
+        "Right click vào biên dòng/cột cần thiết > Delete Comment",
+        "Chọn cột/dòng cần thiết > Delete Comment",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "Cả 2 lựa chọn đều đúng"
+    },
+    {
+      "question": "Trong Excel, để xóa hết những Comment đang hiển thị dùng lệnh gì?",
+      "options": [
+        "Delete Comment",
+        "Delete All Comment",
+        "Delete All Comments Shown",
+        "New Comment"
+      ],
+      "answer": "Delete All Comments Shown"
+    },
+    {
+      "question": "Trong Excel, dấu hiệu ##### tại một cột thể hiện điều gì?",
+      "options": [
+        "Công thức sai",
+        "Kết quả tính toán có lỗi",
+        "Chiều rộng cột không đủ để hiển thị dữ liệu số",
+        "Dữ liệu trong cột có lỗi"
+      ],
+      "answer": "Chiều rộng cột không đủ để hiển thị dữ liệu số"
+    },
+    {
+      "question": "Trong Excel, để thực hiện liên kết dữ liệu giữa các bảng tính, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chọn Hyperlink > Chọn biểu tượng Email Address",
+        "Chọn Hyperlink > chọn biểu tượng Existing File or Web Page",
+        "Chọn Hyperlink > chọn biểu tượng Create New Document",
+        "Chọn Hyperlink > chọn biểu tượng Place in This Document"
+      ],
+      "answer": "Chọn Hyperlink > chọn biểu tượng Existing File or Web Page"
+    },
+    {
+      "question": "Trong Excel, muốn đặt mật khẩu bảo vệ cấu trúc bảng tính, bạn thực hiện như thế nào?",
+      "options": [
+        "File > Info > Protect Workbook > Protect Workbook Structure",
+        "File > Info > Protect Workbook > Protect Current Sheet",
+        "Review > nhóm Changes > Protect Workbook",
+        "Câu File > Info > Protect Workbook > Protect Workbook Structure và Review > nhóm Changes > Protect Workbook đúng"
+      ],
+      "answer": "Câu File > Info > Protect Workbook > Protect Workbook Structure và Review > nhóm Changes > Protect Workbook đúng"
+    },
+    {
+      "question": "Trong Excel, muốn bảo vệ cấu trúc bảng tính không cần đổi tên, di chuyển, chèn, xóa, hiện Sheet, không, có thay đổi kích thước, và vị trí bảng tính mỗi khi được mở",
+      "options": [
+        "File> Info> Protect Workbook> Engypt with password",
+        "File> Save hoặc Save as> Chọn nút Tool> General Option> chọn password to open> Password to modify",
+        "Review > nhóm Changes > Protect Workbook",
+        "Cả 3 câu trên đều đúng"
+      ],
+      "answer": "Review > nhóm Changes > Protect Workbook"
+    },
+    {
+      "question": "Trong Excel, để đặt password bảo vệ một Sheet, ta vào chỗ nào để đặt",
+      "options": [
+        "File/ Protection/Protect Sheet",
+        "Data/ Protection/ Protect Sheet",
+        "Insert/ Format/ Protect Sheet",
+        "Home/ Format/ Protect Sheet"
+      ],
+      "answer": "Home/ Format/ Protect Sheet"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc che dấu/ bỏ che dấu (hide/unhide) các cột thông tin",
+      "options": [
+        "Chọn Format Cell> Protection> Locked> Review> Protect Sheet",
+        "Chọn Format Cell> Protection> Protection> Hidden> Review> Protect Sheet",
+        "Chọn Review> Allow Users to Edit Ranges",
+        "Chọn Review> Protect Workbook"
+      ],
+      "answer": "Chọn Format Cell> Protection> Protection> Hidden> Review> Protect Sheet"
+    },
+    {
+      "question": "Trong Excel, để gỡ bỏ password cho một Sheet, ta thực hiện thao tác:",
+      "options": [
+        "Chọn Review/ Unprotect Sheet",
+        "Chọn Review/ Remove Password Sheet",
+        "Chọn View/ Remove Password Sheet",
+        "Chọn View/ Unprotect Sheet"
+      ],
+      "answer": "Chọn Review/ Unprotect Sheet"
+    },
+    {
+      "question": "Để gỡ bỏ mật khẩu mở/ chỉnh sửa nội dung trong file Excel đã đặt mật khẩu, trước tiên ta mở file này lên rồi tiến hành:",
+      "options": [
+        "File/ option/ chọn Tools/ General Option/ Xóa mật khẩu đã đặt",
+        "File/ Options/Chọn Tools/ Xóa mật khẩu đã đặt",
+        "File/ Save As/ chọn Tools/ General Options/ Xóa mật khẩu đã đặt",
+        "Tất cả đều sai"
+      ],
+      "answer": "File/ Save As/ chọn Tools/ General Options/ Xóa mật khẩu đã đặt"
+    },
+    {
+      "question": "Trong Excel, muốn thiết lập Font mặc định khi tạo mới Workbook, ta chọn",
+      "options": [
+        "File Options> Advance> When Creating new workbook> Use this fort",
+        "Tools> Options> General> When creating new workbook> Use this fort",
+        "File/ Options> General> When Creating new workbook> Use this fort",
+        "File> Options> Save> When Creating new workbook> Use this fort"
+      ],
+      "answer": "File/ Options> General> When Creating new workbook> Use this fort"
+    },
+    {
+      "question": "Trong Excel, muốn tạo ra bản sao lưu dự phòng khi lưu, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "File > Options > Advanced > Save > Always create backup",
+        "File > Save As > Tools > General Options > Always create backup",
+        "File > Options > General > Always create backup",
+        "File > Options > Save > Always create backup"
+      ],
+      "answer": "File > Save As > Tools > General Options > Always create backup"
+    },
+    {
+      "question": "Trong Excel, để đặt mặc định chỉ hiển thị công thức (thay vì hiện kết quả tính được), bạn sử dụng lựa chọn nào?",
+      "options": [
+        "File > Options > Advanced > chọn Show formulas in cells instead of their calculated results",
+        "Bỏ đi dấu bằng (=) trước mỗi công thức",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "File > Options > Advanced > chọn Show formulas in cells instead of their calculated results"
+    },
+    {
+      "question": "Trong Excel, để thiết lập chế độ lưu tự động phòng khi có sự cố xảy ra, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "File > Save để lưu",
+        "Tools > Options > Save > chọn Save AutoRecover information every... để số phút tự động lưu",
+        "File > Options > Save > Mục Save AutoRecover information every..., điền số phút tự động lưu",
+        "Tất cả đều sai"
+      ],
+      "answer": "File > Options > Save > Mục Save AutoRecover information every..., điền số phút tự động lưu"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc sử dụng mảng trong hàm, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Kết thúc công thức bằng phím Enter",
+        "Kết thúc công thức bằng phím Ctrl + Shift + Enter",
+        "Kết thúc công thức bằng phím Ctrl + Enter",
+        "Kết thúc công thức bằng phím Shift + Enter"
+      ],
+      "answer": "Kết thúc công thức bằng phím Ctrl + Shift + Enter"
+    },
+    {
+      "question": "Trong bảng tính Excel, lệnh thống kê nào dùng để kết hợp thông tin từ nhiều nguồn khác nhau?",
+      "options": [
+        "Thẻ Data > Consolidate",
+        "Thẻ Data > What If Analysis > Data Table",
+        "Thẻ Data > SubTotal",
+        "Thẻ Data > Data Validation"
+      ],
+      "answer": "Thẻ Data > Consolidate"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc thay đổi tỷ lệ trên các trục của biểu đồ, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Right click > Format Axis... > Primary Axis > Axis Options > Thay đổi Maximum",
+        "Right click > Format Axis... > Primary Axis > Axis Options > thay đổi Minimum",
+        "Right click > Format Axis > Axis Options > Thay đổi Major unit",
+        "Cả 3 lựa chọn trên đều sai"
+      ],
+      "answer": "Right click > Format Axis... > Primary Axis > Axis Options > Thay đổi Maximum"
+    },
+    {
+      "question": "Trong Excel, để thực hiện việc thêm trục thứ 2 vào biểu đồ, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Right Click > Format Data Series > Primary Axis",
+        "Right click > Format Data Series > Secondary Axis",
+        "Click chọn biểu tượng Change Chart Type trên nhóm Type của Tab Design",
+        "Cả 3 lựa chọn trên đều sai"
+      ],
+      "answer": "Right click > Format Data Series > Secondary Axis"
+    },
+    {
+      "question": "Biểu đồ trong Excel được phân thành những loại nào?",
+      "options": [
+        "Column, Bar, Pie, Line",
+        "XY Scatter, Radar",
+        "Stock",
+        "Cả 3 lựa chọn trên đều đúng"
+      ],
+      "answer": "Cả 3 lựa chọn trên đều đúng"
+    },
+    {
+      "question": "Để thay đổi biểu đồ, bạn sử dụng lựa chọn nào?",
+      "options": [
+        "Chuột phải vào biểu đồ, chọn Change Chart Type",
+        "Chọn biểu đồ, chọn Change Chart Type từ Chart Tools",
+        "Cả 2 lựa chọn đều đúng",
+        "Cả 2 lựa chọn đều sai"
+      ],
+      "answer": "Cả 2 lựa chọn đều đúng"
+    },
+    {
+      "question": "Trong Excel, cách tạo một danh sách để nhập dữ liệu tự động (Ví dụ: Chỉ cần gõ Thứ hai, sau đó kéo chuột sẽ hiển thị Thứ ba, Thứ tư...) Ta thực hiện thao tác nào sau đây?",
+      "options": [
+        "File > Options > Advanced > Chọn Edit Custom Lists > Nhập danh sách tự động > Chọn Add > Ok",
+        "View > List > Advanced > Chọn Edit Custom > Nhập danh sách tự động > Chọn Add > Ok",
+        "Data > Auto List > Advanced > chọn Edit Custom List > Nhập danh sách tự động > Chọn Add > Ok",
+        "Tất cả đều sai"
+      ],
+      "answer": "File > Options > Advanced > Chọn Edit Custom Lists > Nhập danh sách tự động > Chọn Add > Ok"
+    },
+    {
+      "question": "Nếu nhập giá trị ngày tháng năm không hợp lệ thì Excel coi đó là dữ liệu kiểu gì?",
+      "options": [
+        "Chuỗi",
+        "Số",
+        "Công thức",
+        "Thời gian"
+      ],
+      "answer": "Chuỗi"
+    },
+    {
+      "question": "Trong Excel, để tự động xuống dòng khi hết chiều rộng của ô ta chọn thao tác nào sau đây?",
+      "options": [
+        "Data > From Text",
+        "Alt + Enter",
+        "Home > Wrap Text",
+        "Home > Merge & Center"
+      ],
+      "answer": "Home > Wrap Text"
+    },
+    {
+      "question": "Trong Excel, khi nhập dữ liệu trong ô, để ngắt xuống dòng trong ô đó thì nhấn tổ hợp phím?",
+      "options": [
+        "Shift + Enter",
+        "Ctrl + Enter",
+        "Alt + Enter",
+        "Ctrl + Shift + Enter"
+      ],
+      "answer": "Alt + Enter"
+    },
+    {
+      "question": "Ý nghĩa của hàm SMALL?",
+      "options": [
+        "Lấy giá trị nhỏ nhất thứ k",
+        "Lấy giá trị lớn nhất thứ k",
+        "Lấy giá trị nhỏ nhất",
+        "Lấy giá trị lớn nhất"
+      ],
+      "answer": "Lấy giá trị nhỏ nhất thứ k"
+    }
+  ]
+}
