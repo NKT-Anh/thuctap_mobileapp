@@ -5,13 +5,24 @@ const LESSONS_COLLECTION = 'lessons';
 
 export const fetchLessons = async () => {
   try {
-    const q = query(
-      collection(firestore, LESSONS_COLLECTION),
-      orderBy('order', 'asc'),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Sử dụng query đơn giản để tránh lỗi index
+    const querySnapshot = await getDocs(collection(firestore, LESSONS_COLLECTION));
+    const lessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp trên client-side
+    return lessons.sort((a, b) => {
+      // Sắp xếp theo order trước, nếu không có order thì theo createdAt
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      if (a.order !== undefined) return -1;
+      if (b.order !== undefined) return 1;
+      
+      // Nếu không có order, sắp xếp theo createdAt (mới nhất trước)
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy danh sách bài học:', error);
     throw new Error('Không thể tải danh sách bài học');
@@ -61,11 +72,13 @@ export const fetchLessonsBySubject = async (subject) => {
   try {
     const q = query(
       collection(firestore, LESSONS_COLLECTION), 
-      where("subject", "==", subject),
-      orderBy('order', 'asc')
+      where("subject", "==", subject)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const lessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp trên client-side
+    return lessons.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Lỗi lấy bài học theo môn học:', error);
     throw new Error('Không thể tải bài học theo môn học');
@@ -76,11 +89,13 @@ export const fetchLessonsByDifficulty = async (difficulty) => {
   try {
     const q = query(
       collection(firestore, LESSONS_COLLECTION), 
-      where("difficulty", "==", difficulty),
-      orderBy('order', 'asc')
+      where("difficulty", "==", difficulty)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const lessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp trên client-side
+    return lessons.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Lỗi lấy bài học theo độ khó:', error);
     throw new Error('Không thể tải bài học theo độ khó');
@@ -91,11 +106,13 @@ export const fetchLessonsByStatus = async (status) => {
   try {
     const q = query(
       collection(firestore, LESSONS_COLLECTION), 
-      where("status", "==", status),
-      orderBy('order', 'asc')
+      where("status", "==", status)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const lessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp trên client-side
+    return lessons.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Lỗi lấy bài học theo trạng thái:', error);
     throw new Error('Không thể tải bài học theo trạng thái');
@@ -106,11 +123,13 @@ export const fetchLessonsByTopic = async (topic) => {
   try {
     const q = query(
       collection(firestore, LESSONS_COLLECTION), 
-      where("topic", "==", topic),
-      orderBy('order', 'asc')
+      where("topic", "==", topic)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const lessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp trên client-side
+    return lessons.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Lỗi lấy bài học theo chủ đề:', error);
     throw new Error('Không thể tải bài học theo chủ đề');
@@ -121,11 +140,13 @@ export const fetchLessonsByLevel = async (level) => {
   try {
     const q = query(
       collection(firestore, LESSONS_COLLECTION), 
-      where("level", "==", level),
-      orderBy('order', 'asc')
+      where("level", "==", level)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const lessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp trên client-side
+    return lessons.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Lỗi lấy bài học theo cấp độ:', error);
     throw new Error('Không thể tải bài học theo cấp độ');
@@ -134,20 +155,20 @@ export const fetchLessonsByLevel = async (level) => {
 
 export const searchLessons = async (searchTerm) => {
   try {
-    const q = query(
-      collection(firestore, LESSONS_COLLECTION),
-      orderBy('order', 'asc')
-    );
-    const querySnapshot = await getDocs(q);
+    // Lấy tất cả lessons và tìm kiếm trên client-side
+    const querySnapshot = await getDocs(collection(firestore, LESSONS_COLLECTION));
     const allLessons = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
     // Tìm kiếm client-side
-    return allLessons.filter(lesson => 
+    const filteredLessons = allLessons.filter(lesson => 
       lesson.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lesson.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lesson.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lesson.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    
+    // Sắp xếp kết quả
+    return filteredLessons.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Lỗi tìm kiếm bài học:', error);
     throw new Error('Không thể tìm kiếm bài học');

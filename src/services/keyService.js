@@ -5,12 +5,16 @@ const KEYS_COLLECTION = 'keys';
 
 export const fetchKeys = async () => {
   try {
-    const q = query(
-      collection(firestore, KEYS_COLLECTION),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Lấy tất cả keys và sắp xếp trên client-side
+    const querySnapshot = await getDocs(collection(firestore, KEYS_COLLECTION));
+    const keys = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return keys.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy danh sách key:', error);
     throw new Error('Không thể tải danh sách key');
@@ -60,11 +64,17 @@ export const fetchKeysByStatus = async (status) => {
   try {
     const q = query(
       collection(firestore, KEYS_COLLECTION), 
-      where("isActive", "==", status),
-      orderBy('createdAt', 'desc')
+      where("isActive", "==", status)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const keys = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return keys.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy key theo trạng thái:', error);
     throw new Error('Không thể tải key theo trạng thái');
@@ -75,11 +85,17 @@ export const fetchKeysByType = async (type) => {
   try {
     const q = query(
       collection(firestore, KEYS_COLLECTION), 
-      where("type", "==", type),
-      orderBy('createdAt', 'desc')
+      where("type", "==", type)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const keys = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return keys.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy key theo loại:', error);
     throw new Error('Không thể tải key theo loại');

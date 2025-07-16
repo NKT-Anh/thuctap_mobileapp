@@ -6,12 +6,16 @@ const PERMISSIONS_COLLECTION = 'permissions';
 
 export const fetchRoles = async () => {
   try {
-    const q = query(
-      collection(firestore, ROLES_COLLECTION),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Lấy tất cả roles và sắp xếp trên client-side
+    const querySnapshot = await getDocs(collection(firestore, ROLES_COLLECTION));
+    const roles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return roles.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy danh sách vai trò:', error);
     throw new Error('Không thể tải danh sách vai trò');
@@ -61,11 +65,17 @@ export const fetchRolesByLevel = async (level) => {
   try {
     const q = query(
       collection(firestore, ROLES_COLLECTION), 
-      where("level", "==", level),
-      orderBy('createdAt', 'desc')
+      where("level", "==", level)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const roles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return roles.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy vai trò theo cấp độ:', error);
     throw new Error('Không thể tải vai trò theo cấp độ');
@@ -76,11 +86,17 @@ export const fetchActiveRoles = async () => {
   try {
     const q = query(
       collection(firestore, ROLES_COLLECTION), 
-      where("isActive", "==", true),
-      orderBy('createdAt', 'desc')
+      where("isActive", "==", true)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const roles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return roles.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy vai trò hoạt động:', error);
     throw new Error('Không thể tải vai trò hoạt động');

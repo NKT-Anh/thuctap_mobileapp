@@ -5,23 +5,27 @@ const EXAMS_COLLECTION = 'exams';
 
 export const fetchExams = async (classId = null) => {
   try {
-    let q;
+    let querySnapshot;
+    
     if (classId) {
-      q = query(
+      const q = query(
         collection(firestore, EXAMS_COLLECTION), 
-        where('classId', '==', classId),
-        orderBy('createdAt', 'desc')
+        where('classId', '==', classId)
       );
+      querySnapshot = await getDocs(q);
     } else {
       // Cho admin - lấy tất cả exam
-      q = query(
-        collection(firestore, EXAMS_COLLECTION),
-        orderBy('createdAt', 'desc')
-      );
+      querySnapshot = await getDocs(collection(firestore, EXAMS_COLLECTION));
     }
     
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side (mới nhất trước)
+    return exams.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy danh sách đề thi:', error);
     throw new Error('Không thể tải danh sách đề thi');
@@ -71,11 +75,17 @@ export const fetchExamsByType = async (type) => {
   try {
     const q = query(
       collection(firestore, EXAMS_COLLECTION), 
-      where("type", "==", type),
-      orderBy('createdAt', 'desc')
+      where("type", "==", type)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return exams.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy đề thi theo loại:', error);
     throw new Error('Không thể tải đề thi theo loại');
@@ -86,11 +96,17 @@ export const fetchExamsByStatus = async (status) => {
   try {
     const q = query(
       collection(firestore, EXAMS_COLLECTION), 
-      where("status", "==", status),
-      orderBy('createdAt', 'desc')
+      where("status", "==", status)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return exams.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy đề thi theo trạng thái:', error);
     throw new Error('Không thể tải đề thi theo trạng thái');
@@ -101,11 +117,17 @@ export const fetchExamsBySubject = async (subject) => {
   try {
     const q = query(
       collection(firestore, EXAMS_COLLECTION), 
-      where("subject", "==", subject),
-      orderBy('createdAt', 'desc')
+      where("subject", "==", subject)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return exams.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy đề thi theo môn học:', error);
     throw new Error('Không thể tải đề thi theo môn học');
@@ -116,11 +138,17 @@ export const fetchExamsByDifficulty = async (difficulty) => {
   try {
     const q = query(
       collection(firestore, EXAMS_COLLECTION), 
-      where("difficulty", "==", difficulty),
-      orderBy('createdAt', 'desc')
+      where("difficulty", "==", difficulty)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sắp xếp theo createdAt trên client-side
+    return exams.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi lấy đề thi theo độ khó:', error);
     throw new Error('Không thể tải đề thi theo độ khó');
@@ -129,19 +157,23 @@ export const fetchExamsByDifficulty = async (difficulty) => {
 
 export const searchExams = async (searchTerm) => {
   try {
-    const q = query(
-      collection(firestore, EXAMS_COLLECTION),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
+    // Lấy tất cả exams và tìm kiếm trên client-side
+    const querySnapshot = await getDocs(collection(firestore, EXAMS_COLLECTION));
     const allExams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
     // Tìm kiếm client-side vì Firestore không hỗ trợ full-text search
-    return allExams.filter(exam => 
+    const filteredExams = allExams.filter(exam => 
       exam.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       exam.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       exam.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    
+    // Sắp xếp kết quả theo createdAt
+    return filteredExams.sort((a, b) => {
+      const aDate = a.createdAt?.toDate() || new Date(0);
+      const bDate = b.createdAt?.toDate() || new Date(0);
+      return bDate - aDate;
+    });
   } catch (error) {
     console.error('Lỗi tìm kiếm đề thi:', error);
     throw new Error('Không thể tìm kiếm đề thi');

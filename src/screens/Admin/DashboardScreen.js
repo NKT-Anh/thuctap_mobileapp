@@ -7,7 +7,7 @@ import { fetchLessons } from '../../services/lessonService';
 
 const { width } = Dimensions.get('window');
 
-export default function DashboardScreen() {
+export default function DashboardScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -63,7 +63,8 @@ export default function DashboardScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
       <Card style={styles.welcomeCard}>
         <Card.Content>
           <Title style={styles.welcomeTitle}>Bảng điều khiển Admin</Title>
@@ -132,7 +133,8 @@ export default function DashboardScreen() {
           </View>
         </Card.Content>
       </Card>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -140,6 +142,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
   },
   contentContainer: {
     padding: 16,
