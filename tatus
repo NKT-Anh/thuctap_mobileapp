@@ -1,0 +1,177 @@
+[33mcommit 251f0deb4effdf731ffd740933a5b6a668168dc2[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/branch[m[33m)[m
+Author: yuanguohung <102530518+yuanguohung@users.noreply.github.com>
+Date:   Wed Jul 16 19:14:06 2025 +0700
+
+    Hung-fix bug
+
+[1mdiff --git a/src/navigation/AppNavigator.js b/src/navigation/AppNavigator.js[m
+[1mindex e098031..d140d95 100644[m
+[1m--- a/src/navigation/AppNavigator.js[m
+[1m+++ b/src/navigation/AppNavigator.js[m
+[36m@@ -42,6 +42,7 @@[m [mexport default function AppNavigator() {[m
+         drawerContent={props => <CustomDrawerContent {...props} />}[m
+         screenOptions={{[m
+           headerShown: true,[m
+[32m+[m[32m          headerLeft: () => null, // Ẩn nút hamburger mặc định[m
+           drawerStyle: {[m
+             backgroundColor: '#fff',[m
+             width: 280,[m
+[1mdiff --git a/src/screens/Admin/DashboardScreen.js b/src/screens/Admin/DashboardScreen.js[m
+[1mindex cf71583..acd6abc 100644[m
+[1m--- a/src/screens/Admin/DashboardScreen.js[m
+[1m+++ b/src/screens/Admin/DashboardScreen.js[m
+[36m@@ -7,7 +7,7 @@[m [mimport { fetchLessons } from '../../services/lessonService';[m
+ [m
+ const { width } = Dimensions.get('window');[m
+ [m
+[31m-export default function DashboardScreen() {[m
+[32m+[m[32mexport default function DashboardScreen({ navigation }) {[m
+   const [loading, setLoading] = useState(true);[m
+   const [stats, setStats] = useState({[m
+     totalUsers: 0,[m
+[36m@@ -63,7 +63,8 @@[m [mexport default function DashboardScreen() {[m
+   }[m
+ [m
+   return ([m
+[31m-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>[m
+[32m+[m[32m    <View style={styles.container}>[m
+[32m+[m[32m      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>[m
+       <Card style={styles.welcomeCard}>[m
+         <Card.Content>[m
+           <Title style={styles.welcomeTitle}>Bảng điều khiển Admin</Title>[m
+[36m@@ -132,7 +133,8 @@[m [mexport default function DashboardScreen() {[m
+           </View>[m
+         </Card.Content>[m
+       </Card>[m
+[31m-    </ScrollView>[m
+[32m+[m[32m      </ScrollView>[m
+[32m+[m[32m    </View>[m
+   );[m
+ }[m
+ [m
+[36m@@ -141,6 +143,9 @@[m [mconst styles = StyleSheet.create({[m
+     flex: 1,[m
+     backgroundColor: '#f5f5f5',[m
+   },[m
+[32m+[m[32m  scrollView: {[m
+[32m+[m[32m    flex: 1,[m
+[32m+[m[32m  },[m
+   contentContainer: {[m
+     padding: 16,[m
+   },[m
+[1mdiff --git a/src/services/examService.js b/src/services/examService.js[m
+[1mindex d7ab44f..6d9c585 100644[m
+[1m--- a/src/services/examService.js[m
+[1m+++ b/src/services/examService.js[m
+[36m@@ -5,23 +5,27 @@[m [mconst EXAMS_COLLECTION = 'exams';[m
+ [m
+ export const fetchExams = async (classId = null) => {[m
+   try {[m
+[31m-    let q;[m
+[32m+[m[32m    let querySnapshot;[m
+[32m+[m[41m    [m
+     if (classId) {[m
+[31m-      q = query([m
+[32m+[m[32m      const q = query([m
+         collection(firestore, EXAMS_COLLECTION), [m
+[31m-        where('classId', '==', classId),[m
+[31m-        orderBy('createdAt', 'desc')[m
+[32m+[m[32m        where('classId', '==', classId)[m
+       );[m
+[32m+[m[32m      querySnapshot = await getDocs(q);[m
+     } else {[m
+       // Cho admin - lấy tất cả exam[m
+[31m-      q = query([m
+[31m-        collection(firestore, EXAMS_COLLECTION),[m
+[31m-        orderBy('createdAt', 'desc')[m
+[31m-      );[m
+[32m+[m[32m      querySnapshot = await getDocs(collection(firestore, EXAMS_COLLECTION));[m
+     }[m
+     [m
+[31m-    const querySnapshot = await getDocs(q);[m
+[31m-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[32m    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[41m    [m
+[32m+[m[32m    // Sắp xếp theo createdAt trên client-side (mới nhất trước)[m
+[32m+[m[32m    return exams.sort((a, b) => {[m
+[32m+[m[32m      const aDate = a.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      const bDate = b.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      return bDate - aDate;[m
+[32m+[m[32m    });[m
+   } catch (error) {[m
+     console.error('Lỗi lấy danh sách đề thi:', error);[m
+     throw new Error('Không thể tải danh sách đề thi');[m
+[36m@@ -71,11 +75,17 @@[m [mexport const fetchExamsByType = async (type) => {[m
+   try {[m
+     const q = query([m
+       collection(firestore, EXAMS_COLLECTION), [m
+[31m-      where("type", "==", type),[m
+[31m-      orderBy('createdAt', 'desc')[m
+[32m+[m[32m      where("type", "==", type)[m
+     );[m
+     const querySnapshot = await getDocs(q);[m
+[31m-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[32m    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[41m    [m
+[32m+[m[32m    // Sắp xếp theo createdAt trên client-side[m
+[32m+[m[32m    return exams.sort((a, b) => {[m
+[32m+[m[32m      const aDate = a.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      const bDate = b.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      return bDate - aDate;[m
+[32m+[m[32m    });[m
+   } catch (error) {[m
+     console.error('Lỗi lấy đề thi theo loại:', error);[m
+     throw new Error('Không thể tải đề thi theo loại');[m
+[36m@@ -86,11 +96,17 @@[m [mexport const fetchExamsByStatus = async (status) => {[m
+   try {[m
+     const q = query([m
+       collection(firestore, EXAMS_COLLECTION), [m
+[31m-      where("status", "==", status),[m
+[31m-      orderBy('createdAt', 'desc')[m
+[32m+[m[32m      where("status", "==", status)[m
+     );[m
+     const querySnapshot = await getDocs(q);[m
+[31m-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[32m    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[41m    [m
+[32m+[m[32m    // Sắp xếp theo createdAt trên client-side[m
+[32m+[m[32m    return exams.sort((a, b) => {[m
+[32m+[m[32m      const aDate = a.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      const bDate = b.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      return bDate - aDate;[m
+[32m+[m[32m    });[m
+   } catch (error) {[m
+     console.error('Lỗi lấy đề thi theo trạng thái:', error);[m
+     throw new Error('Không thể tải đề thi theo trạng thái');[m
+[36m@@ -101,11 +117,17 @@[m [mexport const fetchExamsBySubject = async (subject) => {[m
+   try {[m
+     const q = query([m
+       collection(firestore, EXAMS_COLLECTION), [m
+[31m-      where("subject", "==", subject),[m
+[31m-      orderBy('createdAt', 'desc')[m
+[32m+[m[32m      where("subject", "==", subject)[m
+     );[m
+     const querySnapshot = await getDocs(q);[m
+[31m-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[32m    const exams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32m+[m[41m    [m
+[32m+[m[32m    // Sắp xếp theo createdAt trên client-side[m
+[32m+[m[32m    return exams.sort((a, b) => {[m
+[32m+[m[32m      const aDate = a.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      const bDate = b.createdAt?.toDate() || new Date(0);[m
+[32m+[m[32m      return bDate - aDate;[m
+[32m+[m[32m    });[m
+   } catch (error) {[m
+     console.error('Lỗi lấy đề thi theo môn học:', error);[m
+     throw new Error('Không thể tải đề thi theo môn học');[m
+[36m@@ -116,11 +138,17 @@[m [mexport const fetchExamsByDifficulty = async (difficulty) => {[m
+   try {[m
+     const q = query([m
+       collection(firestore, EXAMS_COLLECTION), [m
+[31m-      where("difficulty", "==", difficulty),[m
+[31m-      orderBy('createdAt', 'desc')[m
+[32m+[m[32m      where("difficulty", "==", difficulty)[m
+     );[m
+     const querySnapshot = await getDocs(q);[m
+[31m-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));[m
+[32
