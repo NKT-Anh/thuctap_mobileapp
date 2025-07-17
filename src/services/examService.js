@@ -204,4 +204,10 @@ export const duplicateExam = async (examId) => {
     console.error('Lỗi sao chép đề thi:', error);
     throw new Error('Không thể sao chép đề thi');
   }
-}; 
+};
+export const fetchExamResults = async (examId) => {
+  if (!examId) return [];
+  const q = query(collection(firestore, 'official_exam_results'), where('examId', '==', examId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};

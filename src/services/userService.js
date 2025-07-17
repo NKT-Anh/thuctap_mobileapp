@@ -1,5 +1,5 @@
 import { firestore } from '../../firebaseConfig';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, getDoc } from 'firebase/firestore';
 import { auth } from '../../firebaseConfig';
 import { updatePassword } from 'firebase/auth';
 
@@ -72,4 +72,31 @@ export const fetchUsersByIds = async (ids) => {
     users = users.concat(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
   }
   return users;
+};
+
+export const fetchStudentsByClass = async (classId) => {
+  if (!classId) return [];
+  const classDoc = await getDoc(doc(firestore, 'classes', classId));
+  if (!classDoc.exists()) {
+    console.log('Class not found');
+    return [];
+  }
+  const students = classDoc.data().students || [];
+  console.log('students array:', students);
+  if (!students.length) {
+    console.log('No students in class');
+    return [];
+  }
+  const users = await fetchUsersByIds(students);
+  console.log('users fetched:', users);
+  return users;
+};
+
+export const getClassIdByCode = async (code) => {
+  const q = query(collection(firestore, 'classes'), where('code', '==', code));
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    return querySnapshot.docs[0].id;
+  }
+  return null;
 }; 
