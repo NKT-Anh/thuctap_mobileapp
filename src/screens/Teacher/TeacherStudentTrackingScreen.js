@@ -1,181 +1,187 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, Modal, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
-import { fetchUsersByEmails } from '../../services/userService';
-import { fetchUsersByIds } from '../../services/userService';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { firestore } from '../../../firebaseConfig';
-import { useAuth } from '../../context/AuthContext';
+import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
 
-export default function TeacherStudentTrackingScreen() {
-  const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState('');
-  const [students, setStudents] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [selectedExam, setSelectedExam] = useState('');
-  const [results, setResults] = useState([]);
+function getInitials(name) {
+  if (!name) return '?';
+  const parts = name.split(' ');
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export default function TeacherStudentTrackingScreen({ route }) {
+  // Có thể nhận classId hoặc examId từ route nếu cần
+  const { classId, examId } = route?.params || {};
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const { user } = useAuth();
+  const [results, setResults] = useState([]);
+  const [selectedResult, setSelectedResult] = useState(null);
+  const [comment, setComment] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
 
-  // Lấy danh sách lớp
   useEffect(() => {
-    const fetchClasses = async () => {
-      const q = query(collection(firestore, 'classes'), where('teacher', '==', user.email));
-      const querySnapshot = await getDocs(q);
-      setClasses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    };
-    fetchClasses();
-  }, []);
+    loadResults();
+  }, [classId, examId]);
 
-  // Lấy danh sách học viên khi chọn lớp
   useEffect(() => {
-    const loadStudents = async () => {
-      setLoading(true);
-      try {
-        if (!selectedClass) { setStudents([]); setExams([]); setResults([]); setLoading(false); return; }
-        const classDoc = await getDocs(query(collection(firestore, 'classes'), where('teacher', '==', user.email), where('id', '==', selectedClass)));
-        const classData = classDoc.docs[0]?.data();
-        const studentIds = classData?.students || [];
-        const users = await fetchUsersByIds(studentIds);
-        setStudents(users);
-        // Lấy danh sách bài kiểm tra
-        const examsQ = query(collection(firestore, 'exams'), where('classId', '==', selectedClass));
-        const examsSnap = await getDocs(examsQ);
-        setExams(examsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        setSelectedExam('');
-        setResults([]);
-      } catch (error) {
-        Alert.alert('Lỗi', 'Không thể tải danh sách học viên: ' + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadStudents();
-  }, [selectedClass]);
+    if (selectedResult) {
+      setComment(selectedResult.teacherComment || '');
+    }
+  }, [selectedResult]);
 
-  // Lấy kết quả tất cả bài kiểm tra của lớp khi chọn lớp
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (!selectedClass || exams.length === 0) { setResults([]); return; }
-      setLoading(true);
-      try {
-        // Lấy tất cả examId của lớp
-        const examIds = exams.map(e => e.id);
-        let allResults = [];
-        // Firestore chỉ cho phép tối đa 10 phần tử trong mảng where('in')
-        for (let i = 0; i < examIds.length; i += 10) {
-          const chunk = examIds.slice(i, i + 10);
-          const q = query(collection(firestore, 'results'), where('examId', 'in', chunk));
-          const querySnapshot = await getDocs(q);
-          allResults = allResults.concat(querySnapshot.docs.map(doc => doc.data()));
-        }
-        setResults(allResults);
-      } catch (error) {
-        Alert.alert('Lỗi', 'Không thể tải kết quả: ' + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResults();
-  }, [selectedClass, exams]);
+  const handleSaveComment = async () => {
+    if (!selectedResult) return;
+    setCommentLoading(true);
+    try {
+      const resultRef = doc(firestore, 'official_exam_results', selectedResult.id);
+      await updateDoc(resultRef, { teacherComment: comment });
+      setSelectedResult({ ...selectedResult, teacherComment: comment });
+    } catch (e) {
+      alert('Lưu nhận xét thất bại!');
+    }
+    setCommentLoading(false);
+  };
 
-  const filteredStudents = students.filter(s =>
-    s.name?.toLowerCase().includes(search.toLowerCase()) ||
-    s.email?.toLowerCase().includes(search.toLowerCase())
+  const loadResults = async () => {
+    setLoading(true);
+    let q;
+    if (examId) {
+      q = query(collection(firestore, 'official_exam_results'), where('examId', '==', examId));
+    } else if (classId) {
+      q = query(collection(firestore, 'official_exam_results'), where('classId', '==', classId));
+    } else {
+      q = collection(firestore, 'official_exam_results');
+    }
+    const snap = await getDocs(q);
+    setResults(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <View style={styles.center}><ActivityIndicator size="large" color="#007AFF" /><Text style={{marginTop:8}}>Đang tải kết quả...</Text></View>;
+  }
+
+  if (selectedResult) {
+    // Hiển thị chi tiết kết quả
+    return (
+      <KeyboardAvoidingView style={{ flex: 1, padding: 16, backgroundColor: '#F4F7FB' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Text style={styles.title}>Kết quả chi tiết</Text>
+        <View style={styles.detailCard}>
+          <Text style={styles.detailLabel}>Học sinh:</Text>
+          <Text style={styles.detailValue}>{selectedResult.userName || selectedResult.userId}</Text>
+          <Text style={styles.detailLabel}>Điểm:</Text>
+          <Text style={[styles.detailValue, {color:'#007AFF', fontWeight:'bold', fontSize:18}]}>{selectedResult.score} / {selectedResult.total}</Text>
+        </View>
+        <FlatList
+          data={selectedResult.answers}
+          keyExtractor={(_, idx) => idx.toString()}
+          style={{marginTop:12}}
+          ItemSeparatorComponent={() => <View style={{height:8}} />}
+          renderItem={({ item, index }) => (
+            <View style={styles.answerRow}>
+              <Text style={{ fontWeight: 'bold', marginBottom:2 }}>Câu {index + 1}: {item.question}</Text>
+              <Text>Đáp án của học sinh: <Text style={{ color: item.isCorrect ? '#27ae60' : '#e74c3c', fontWeight:'bold' }}>{item.selected || 'Chưa chọn'}</Text></Text>
+              <Text>Đáp án đúng: <Text style={{ color: '#27ae60', fontWeight:'bold' }}>{item.correct}</Text></Text>
+              {item.explanation && <Text style={{ color: '#555', fontStyle:'italic', marginTop:2 }}>Giải thích: {item.explanation}</Text>}
+            </View>
+          )}
+        />
+        <View style={styles.commentBoxWrap}>
+          <Text style={styles.detailLabel}>Nhận xét của giáo viên:</Text>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Nhập nhận xét cho học sinh..."
+            value={comment}
+            onChangeText={setComment}
+            multiline
+            editable={!commentLoading}
+          />
+          <TouchableOpacity style={styles.saveCommentBtn} onPress={handleSaveComment} disabled={commentLoading}>
+            <Text style={styles.saveCommentBtnText}>{commentLoading ? 'Đang lưu...' : 'Lưu nhận xét'}</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={styles.backBtn} onPress={() => setSelectedResult(null)}>
+          <Text style={styles.backBtnText}>← Quay lại danh sách</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  const renderResultItem = ({ item }) => (
+    <TouchableOpacity style={styles.resultCard} onPress={() => setSelectedResult(item)} activeOpacity={0.85}>
+      <View style={styles.avatarWrap}>
+        <View style={styles.avatarCircle}>
+          <Text style={styles.avatarText}>{getInitials(item.userName || item.userId)}</Text>
+        </View>
+      </View>
+      <View style={{flex:1}}>
+        <Text style={styles.resultName}>{item.userName || item.userId}</Text>
+        <View style={styles.resultRowInfo}>
+          <Text style={styles.resultScore}>Điểm: <Text style={{color:'#007AFF', fontWeight:'bold'}}>{item.score}</Text> / {item.total}</Text>
+          <Text style={styles.resultCorrect}>Đúng: {item.correctCount} / {item.total}</Text>
+        </View>
+        <Text style={styles.resultInfo}>Thời gian: {item.durationInSeconds ? Math.round(item.durationInSeconds/60) + ' phút' : '---'}</Text>
+        <Text style={styles.resultInfo}>Ngày nộp: {item.submittedAt ? (typeof item.submittedAt === 'string' ? new Date(item.submittedAt).toLocaleString() : (item.submittedAt.toDate ? item.submittedAt.toDate().toLocaleString() : String(item.submittedAt))) : '---'}</Text>
+        <View style={styles.resultTagsWrap}>
+          <Text style={styles.resultTag}>Mã đề: {item.examId}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 
-  const doneCount = filteredStudents.filter(s => results.find(r => r.userId === s.id)).length;
-
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text style={styles.title}>Theo dõi & Đánh giá Học viên</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
-        {classes.map(c => (
-          <TouchableOpacity
-            key={c.id}
-            style={[styles.classBtn, selectedClass === c.id && styles.classBtnActive]}
-            onPress={() => setSelectedClass(c.id)}
-          >
-            <Text style={selectedClass === c.id ? styles.classBtnActiveText : {}}>{c.name || c.id}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-      {selectedClass ? (
-        <>
-          {exams.map(exam => {
-            const examResults = results.filter(r => r.examId === exam.id);
-            const doneIds = examResults.map(r => r.userId);
-            return (
-              <View key={exam.id} style={styles.examBox}>
-                <Text style={styles.examTitle}>{exam.title}</Text>
-                <Text style={styles.examMeta}>
-                  Đã làm: {doneIds.length}/{students.length}
-                </Text>
-                {students.map(s => {
-                  const result = examResults.find(r => r.userId === s.id);
-                  return (
-                    <View key={s.id} style={styles.studentRow}>
-                      <Text style={styles.studentName}>{s.name}</Text>
-                      <Text style={styles.studentMeta}>
-                        {result ? `Điểm: ${result.score}` : 'Chưa làm bài'}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            );
-          })}
-        </>
-      ) : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Tìm kiếm học viên..."
-        value={search}
-        onChangeText={setSearch}
+    <View style={{ flex: 1, padding: 16, backgroundColor: '#F4F7FB' }}>
+      <Text style={styles.title}>Kết quả bài thi của học sinh</Text>
+      <FlatList
+        data={results}
+        keyExtractor={item => item.id}
+        renderItem={renderResultItem}
+        ItemSeparatorComponent={() => <View style={{height:12}} />}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20, color:'#888' }}>Chưa có kết quả nào.</Text>}
+        contentContainerStyle={{paddingBottom:24}}
       />
-      {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#007AFF" /><Text>Đang tải...</Text></View>
-      ) : (
-        <FlatList
-          data={filteredStudents}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => {
-            const result = results.find(r => r.userId === item.id);
-            return (
-              <View style={styles.studentRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.studentName}>{item.name}</Text>
-                  <Text style={styles.studentEmail}>{item.email}</Text>
-                  <Text style={styles.studentMeta}>
-                    {selectedExam
-                      ? (result ? `Điểm: ${result.score}` : 'Chưa làm bài')
-                      : ''}
-                  </Text>
-                </View>
-              </View>
-            );
-          }}
-          ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Không có học viên nào.</Text>}
-        />
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 10 },
-  studentRow: { flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: '#eee' },
-  studentName: { fontWeight: 'bold', fontSize: 16 },
-  studentEmail: { color: '#555' },
-  studentMeta: { color: '#888', fontSize: 12 },
-  classBtn: { padding: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginRight: 8, backgroundColor: '#fff' },
-  classBtnActive: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
-  classBtnActiveText: { color: '#fff', fontWeight: 'bold' },
-  examBtn: { padding: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginRight: 8, backgroundColor: '#fff' },
-  examBtnActive: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
-  examBtnActiveText: { color: '#fff', fontWeight: 'bold' },
-  examBox: { backgroundColor: '#f6f8fa', borderRadius: 8, padding: 12, marginBottom: 18, width: '100%', shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 2, elevation: 1 },
-  examTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 4 },
-  examMeta: { color: '#007AFF', fontSize: 13, marginBottom: 8 },
-}); 
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor:'#F4F7FB' },
+  title: { fontWeight: 'bold', fontSize: 22, marginBottom: 18, color:'#222', alignSelf:'center' },
+  resultCard: {
+    flexDirection:'row',
+    alignItems:'center',
+    backgroundColor:'#fff',
+    borderRadius: 14,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+    marginBottom: 2,
+  },
+  avatarWrap: { marginRight: 16 },
+  avatarCircle: {
+    width: 48, height: 48, borderRadius: 24, backgroundColor: '#e3e9f7',
+    justifyContent:'center', alignItems:'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.07, shadowRadius: 2,
+  },
+  avatarText: { fontSize: 20, fontWeight:'bold', color:'#4B6CB7' },
+  resultName: { fontWeight: 'bold', fontSize: 17, color:'#222', marginBottom: 2 },
+  resultRowInfo: { flexDirection:'row', alignItems:'center', marginBottom: 2 },
+  resultScore: { fontSize: 15, marginRight: 16 },
+  resultCorrect: { fontSize: 15, color:'#27ae60' },
+  resultInfo: { color:'#555', fontSize: 13, marginBottom: 1 },
+  resultTagsWrap: { flexDirection:'row', marginTop: 4 },
+  resultTag: { backgroundColor:'#eaf0fb', color:'#4B6CB7', borderRadius: 6, paddingHorizontal:8, paddingVertical:2, fontSize:12, marginRight:8 },
+  answerRow: { padding: 12, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, marginBottom: 2 },
+  detailCard: { backgroundColor:'#fff', borderRadius:12, padding:14, marginBottom:14, shadowColor:'#000', shadowOffset:{width:0,height:1}, shadowOpacity:0.07, shadowRadius:2, elevation:2 },
+  detailLabel: { color:'#888', fontSize:14, marginTop:2 },
+  detailValue: { color:'#222', fontSize:16, fontWeight:'bold', marginBottom:2 },
+  backBtn: { marginTop: 24, alignSelf: 'center', backgroundColor:'#007AFF', borderRadius: 8, paddingHorizontal: 24, paddingVertical: 10, shadowColor:'#007AFF', shadowOffset:{width:0,height:2}, shadowOpacity:0.15, shadowRadius:4, elevation:2 },
+  backBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  commentBoxWrap: { backgroundColor:'#fff', borderRadius:10, padding:12, marginTop:18, marginBottom:8, shadowColor:'#000', shadowOffset:{width:0,height:1}, shadowOpacity:0.06, shadowRadius:2, elevation:1 },
+  commentInput: { minHeight: 48, fontSize: 15, color:'#222', backgroundColor:'#f4f7fb', borderRadius:8, padding:8, marginTop:6, marginBottom:10 },
+  saveCommentBtn: { backgroundColor:'#27ae60', borderRadius:8, paddingVertical:10, alignItems:'center', marginBottom:2 },
+  saveCommentBtnText: { color:'#fff', fontWeight:'bold', fontSize:15 },
+});
