@@ -89,6 +89,9 @@ export default function QuestionBankScreen() {
           setLoading(false);
           return;
         }
+        
+        // Validate dữ liệu trước khi import
+        const validQuestions = [];
         for (const q of arr) {
           // Kiểm tra dữ liệu đầu vào
           if (!q.content || !q.options || !Array.isArray(q.options) || q.options.length !== 4 || typeof q.answer !== 'number' || q.answer < 0 || q.answer > 3) { 
@@ -100,20 +103,38 @@ export default function QuestionBankScreen() {
             failed++;
             continue;
           }
+          // Kiểm tra topic và level hợp lệ
+          const questionTopic = q.topic || importTopic;
+          const questionLevel = q.level || importLevel;
+          if (!TOPICS.includes(questionTopic) || !LEVELS.includes(questionLevel)) {
+            failed++;
+            continue;
+          }
+          
+          validQuestions.push({
+            content: q.content.trim(),
+            options: q.options.map(opt => opt.trim()),
+            answer: q.answer,
+            topic: questionTopic,
+            level: questionLevel,
+          });
+        }
+        
+        // Import từng câu hỏi với delay nhỏ để tránh overload
+        for (let i = 0; i < validQuestions.length; i++) {
           try {
-            await addAdminQuestion({
-              content: q.content.trim(),
-              options: q.options.map(opt => opt.trim()),
-              answer: q.answer,
-              topic: q.topic || importTopic,
-              level: q.level || importLevel,
-            });
+            await addAdminQuestion(validQuestions[i]);
             imported++;
+            // Thêm delay nhỏ mỗi 10 câu hỏi
+            if (i % 10 === 0 && i > 0) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
           } catch (e) {
             console.error('Error adding question:', e);
             failed++;
           }
         }
+        
       } else if (fileName.endsWith('.csv') || fileName.endsWith('.txt')) {
         const lines = content.split(/\r?\n/).filter(l => l.trim());
         if (lines.length < 2) { 
@@ -123,7 +144,30 @@ export default function QuestionBankScreen() {
           return; 
         }
         
-        const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+        // Cải thiện CSV parsing để xử lý dấu phay trong nội dung
+        const parseCSVLine = (line) => {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"' && (i === 0 || line[i-1] === ',')) {
+              inQuotes = true;
+            } else if (char === '"' && inQuotes && (i === line.length - 1 || line[i+1] === ',')) {
+              inQuotes = false;
+            } else if (char === ',' && !inQuotes) {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          result.push(current.trim());
+          return result;
+        };
+        
+        const header = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
         const requiredHeaders = ['content', 'optiona', 'optionb', 'optionc', 'optiond', 'answer'];
         const missingHeaders = requiredHeaders.filter(h => !header.includes(h));
         
@@ -134,18 +178,19 @@ export default function QuestionBankScreen() {
           return;
         }
         
+        const contentIndex = header.indexOf('content');
+        const optionAIndex = header.indexOf('optiona');
+        const optionBIndex = header.indexOf('optionb');
+        const optionCIndex = header.indexOf('optionc');
+        const optionDIndex = header.indexOf('optiond');
+        const answerIndex = header.indexOf('answer');
+        const topicIndex = header.indexOf('topic');
+        const levelIndex = header.indexOf('level');
+        
+        const validQuestions = [];
         for (let i = 1; i < lines.length; i++) {
-          const row = lines[i].split(',').map(cell => cell.trim());
+          const row = parseCSVLine(lines[i]);
           if (row.length < 6) { failed++; continue; }
-          
-          const contentIndex = header.indexOf('content');
-          const optionAIndex = header.indexOf('optiona');
-          const optionBIndex = header.indexOf('optionb');
-          const optionCIndex = header.indexOf('optionc');
-          const optionDIndex = header.indexOf('optiond');
-          const answerIndex = header.indexOf('answer');
-          const topicIndex = header.indexOf('topic');
-          const levelIndex = header.indexOf('level');
           
           const q = {
             content: row[contentIndex] || '',
@@ -166,14 +211,30 @@ export default function QuestionBankScreen() {
             continue; 
           }
           
+          // Kiểm tra topic và level hợp lệ
+          if (!TOPICS.includes(q.topic) || !LEVELS.includes(q.level)) {
+            failed++;
+            continue;
+          }
+          
+          validQuestions.push(q);
+        }
+        
+        // Import từng câu hỏi với delay nhỏ
+        for (let i = 0; i < validQuestions.length; i++) {
           try {
-            await addAdminQuestion(q);
+            await addAdminQuestion(validQuestions[i]);
             imported++;
+            // Thêm delay nhỏ mỗi 10 câu hỏi
+            if (i % 10 === 0 && i > 0) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
           } catch (e) {
             console.error('Error adding question:', e);
             failed++;
           }
         }
+        
       } else {
         Alert.alert('Lỗi', 'Chỉ hỗ trợ file .json hoặc .csv!');
         setImportModal(false);
@@ -184,7 +245,7 @@ export default function QuestionBankScreen() {
       setRefresh(r => !r);
       setImportModal(false);
       setLoading(false);
-      Alert.alert('Kết quả import', `Thành công: ${imported}, Lỗi: ${failed}`);
+      Alert.alert('Kết quả import', `Thành công: ${imported} câu hỏi\nLỗi: ${failed} câu hỏi\n\nCác lỗi có thể do:\n- Thiếu thông tin bắt buộc\n- Chủ đề/cấp độ không hợp lệ\n- Định dạng dữ liệu sai`);
     } catch (e) {
       console.error('Import error:', e);
       setImportModal(false);
