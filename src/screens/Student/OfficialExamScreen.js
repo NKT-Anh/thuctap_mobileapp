@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView } from 'react-native';
 import { Text, Button, Card, RadioButton, ActivityIndicator, Snackbar, ProgressBar } from 'react-native-paper';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import { getDocs, collection, query, where, addDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import ClassPicker from '../../components/ClassPicker';
@@ -60,7 +60,7 @@ export default function OfficialExamScreen() {
     setSelected(s => ({ ...s, [qid]: ans }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (questions.length === 0) return;
     clearInterval(timerRef.current);
     let score = 0;
@@ -75,6 +75,20 @@ export default function OfficialExamScreen() {
         explanation: q.explanation,
       };
     });
+    // Lưu kết quả vào Firestore
+    try {
+      await addDoc(collection(firestore, 'examResults'), {
+        examId: null, // TODO: truyền examId nếu có
+        userId: null, // TODO: truyền userId nếu có (lấy từ context)
+        classId: selectedClass,
+        score,
+        total: questions.length,
+        answers,
+        submittedAt: new Date(),
+      });
+    } catch (e) {
+      // Có thể hiện thông báo lỗi nếu cần
+    }
     navigation.navigate('OfficialExamResult', {
       result: {
         score,
