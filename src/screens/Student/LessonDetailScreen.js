@@ -10,12 +10,23 @@ import {
   Surface,
 } from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  where,
+  collection,
+  getDocs,
+} from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LessonDetailScreen() {
   const route = useRoute();
   const { lessonId } = route.params;
+  const { user } = useAuth();
+
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [completed, setCompleted] = useState(false);
@@ -30,9 +41,17 @@ export default function LessonDetailScreen() {
       setLoading(true);
       const docRef = doc(firestore, 'lessons', lessonId);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         setLesson({ id: docSnap.id, ...docSnap.data() });
-        setCompleted(!!docSnap.data().completed);
+
+        const progressQ = query(
+          collection(firestore, 'userLessons'),
+          where('userId', '==', user.uid),
+          where('lessonId', '==', lessonId)
+        );
+        const progressSnap = await getDocs(progressQ);
+        setCompleted(!progressSnap.empty);
       }
     } catch (error) {
       setSnackbar({ visible: true, message: 'Không thể tải bài học: ' + error.message, error: true });
@@ -43,11 +62,16 @@ export default function LessonDetailScreen() {
 
   const handleMarkComplete = async () => {
     try {
-      await updateDoc(doc(firestore, 'lessons', lessonId), { completed: true });
+      await setDoc(doc(firestore, 'userLessons', `${user.uid}_${lessonId}`), {
+        userId: user.uid,
+        lessonId,
+        completed: true,
+        completedAt: new Date(),
+      });
       setCompleted(true);
       setSnackbar({ visible: true, message: 'Đã đánh dấu hoàn thành!', error: false });
     } catch (error) {
-      setSnackbar({ visible: true, message: 'Không thể đánh dấu: ' + error.message, error: true });
+      setSnackbar({ visible: true, message: 'Lỗi khi đánh dấu: ' + error.message, error: true });
     }
   };
 

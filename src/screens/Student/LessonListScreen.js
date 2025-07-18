@@ -15,7 +15,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import ClassPicker from '../../components/ClassPicker';
 
@@ -35,6 +35,7 @@ export default function LessonListScreen() {
   const initialClassCode = route.params?.classCode || '';
   const [classCodes, setClassCodes] = useState([]);
   const [selectedClass, setSelectedClass] = useState(initialClassCode);
+  const [completedLessons, setCompletedLessons] = useState([]);
 
   useEffect(() => {
     if (!initialClassCode) {
@@ -44,11 +45,13 @@ export default function LessonListScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    if (selectedClass) {
-      loadLessons(selectedClass);
-    }
-  }, [selectedClass]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (selectedClass) {
+        loadLessons(selectedClass);
+      }
+    }, [selectedClass])
+  );
 
   const loadStudentClasses = async () => {
     try {
@@ -72,9 +75,10 @@ export default function LessonListScreen() {
   const loadLessons = async (classCode) => {
     try {
       setLoading(true);
+      // Load danh sách bài học
       const q = query(
         collection(firestore, 'lessons'),
-        where('classId', '==', selectedClass)
+        where('classId', '==', classCode)
       );
       const querySnapshot = await getDocs(q);
       const result = querySnapshot.docs.map((doc) => ({
@@ -82,6 +86,15 @@ export default function LessonListScreen() {
         ...doc.data(),
       }));
       setLessons(result);
+
+      // Load bài học đã hoàn thành của user
+      const progressQ = query(
+        collection(firestore, 'userLessons'),
+        where('userId', '==', user.uid)
+      );
+      const progressSnap = await getDocs(progressQ);
+      const completedIds = progressSnap.docs.map((doc) => doc.data().lessonId);
+      setCompletedLessons(completedIds);
     } catch (error) {
       setSnackbar({
         visible: true,
@@ -111,16 +124,14 @@ export default function LessonListScreen() {
       {!selectedClass ? (
         <ClassPicker selectedCode={selectedClass} onChange={setSelectedClass} />
       ) : (
-        <>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-              🏫 Lớp hiện tại: {selectedClass}
-            </Text>
-            <Button mode="outlined" onPress={handleExitClass} compact>
-              Thoát lớp
-            </Button>
-          </View>
-        </>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+            🏫 Lớp hiện tại: {selectedClass}
+          </Text>
+          <Button mode="outlined" onPress={handleExitClass} compact>
+            Thoát lớp
+          </Button>
+        </View>
       )}
 
       <Text
@@ -151,6 +162,16 @@ export default function LessonListScreen() {
                     color="white"
                   />
                 )}
+                right={() =>
+                  completedLessons.includes(item.id) ? (
+                    <Avatar.Icon
+                      icon="check-circle"
+                      size={30}
+                      style={{ backgroundColor: 'transparent' }}
+                      color="#4CAF50"
+                    />
+                  ) : null
+                }
               />
               <Card.Content>
                 <Text numberOfLines={2} style={{ color: '#555' }}>
