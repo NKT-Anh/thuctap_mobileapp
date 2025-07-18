@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, TouchableOpacity, Modal, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
-import { fetchExams, addExam, updateExam, deleteExam } from '../../services/examService';
+import { fetchExams, addExam, updateExam, deleteExam, fetchExamResults } from '../../services/examService';
 import { fetchQuestions } from '../../services/questionService';
+import { fetchStudentsByClass, getClassIdByCode } from '../../services/userService';
 import ClassPicker from '../../components/ClassPicker';
 import { useAuth } from '../../context/AuthContext';
 import { Button as PaperButton } from 'react-native-paper';
@@ -24,6 +25,11 @@ export default function TeacherExamManagementScreen() {
   const [quickSelectCount, setQuickSelectCount] = useState('');
   const [questionBankMode, setQuestionBankMode] = useState('teacher'); // 'teacher' hoặc 'admin'
   const [showAdminQuestions, setShowAdminQuestions] = useState(false);
+  const [resultModalVisible, setResultModalVisible] = useState(false);
+  const [selectedExamResults, setSelectedExamResults] = useState([]);
+  const [selectedExamTitle, setSelectedExamTitle] = useState('');
+  const [loadingResults, setLoadingResults] = useState(false);
+  const [studentsInClass, setStudentsInClass] = useState([]);
 
   useEffect(() => {
     if (selectedClass) loadData();
@@ -115,6 +121,29 @@ export default function TeacherExamManagementScreen() {
     }));
   };
 
+  const openResultModal = async (exam) => {
+    setSelectedExamTitle(exam.title);
+    setResultModalVisible(true);
+    setLoadingResults(true);
+    try {
+      // Nếu exam.classId là code, tra cứu document id trước
+      const classDocId = await getClassIdByCode(exam.classId);
+      let students = [];
+      if (classDocId) {
+        students = await fetchStudentsByClass(classDocId);
+      }
+      const results = await fetchExamResults(exam.id);
+      setSelectedExamResults(results);
+      setStudentsInClass(students);
+    } catch (error) {
+      Alert.alert('Lỗi', 'Không thể tải kết quả: ' + error.message);
+      setSelectedExamResults([]);
+      setStudentsInClass([]);
+    } finally {
+      setLoadingResults(false);
+    }
+  };
+
   if (!selectedClass) {
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ClassPicker selectedCode={selectedClass} onChange={setSelectedClass} /><Text>Vui lòng chọn lớp để xem/quản lý đề thi.</Text></View>;
   }
@@ -149,15 +178,18 @@ export default function TeacherExamManagementScreen() {
         data={filteredExams}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.examRow} onPress={() => openEditModal(item)}>
-            <View style={{ flex: 1 }}>
+          <View style={styles.examRow}>
+            <TouchableOpacity style={{ flex: 1 }} onPress={() => openEditModal(item)}>
               <Text style={styles.examTitle}>{item.title}</Text>
               <Text style={styles.examMeta}>Loại: {item.type} | Thời gian: {item.duration} phút | Số câu: {item.questionIds.length}</Text>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => openResultModal(item)} style={styles.actionBtn}>
+              <Text style={{ color: '#007AFF' }}>Kết quả</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => handleDelete(item)} style={styles.actionBtn}>
               <Text style={{ color: 'red' }}>Xóa</Text>
             </TouchableOpacity>
-          </TouchableOpacity>
+          </View>
         )}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Không có đề thi nào.</Text>}
       />
@@ -201,16 +233,25 @@ export default function TeacherExamManagementScreen() {
               />
               <Text style={{ marginLeft: 8, fontSize: 16 }}>phút</Text>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
-              <Text style={{ alignSelf: 'center', marginRight: 8 }}>Chủ đề:</Text>
-              <TouchableOpacity style={[styles.filterBtn, questionTopic === 'Tất cả' && styles.filterActive]} onPress={() => setQuestionTopic('Tất cả')}>
-                <Text style={questionTopic === 'Tất cả' ? styles.filterActiveText : {}}>Tất cả</Text>
-              </TouchableOpacity>
-              {['Tin học cơ bản', 'Word', 'Excel', 'PowerPoint', 'Internet'].map(t => (
-                <TouchableOpacity key={t} style={[styles.filterBtn, questionTopic === t && styles.filterActive]} onPress={() => setQuestionTopic(t)}>
-                  <Text style={questionTopic === t ? styles.filterActiveText : {}}>{t}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{ marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ alignSelf: 'center', marginRight: 8 }}>Chủ đề:</Text>
+                <TouchableOpacity
+                  style={[styles.filterBtn, questionTopic === 'Tất cả' && styles.filterActive, { minWidth: 90 }]}
+                  onPress={() => setQuestionTopic('Tất cả')}
+                >
+                  <Text style={questionTopic === 'Tất cả' ? styles.filterActiveText : {}}>Tất cả</Text>
                 </TouchableOpacity>
-              ))}
+                {['Tin học cơ bản', 'Word', 'Excel', 'PowerPoint', 'Internet', 'Access', 'Lập trình', 'Mạng máy tính'].map(t => (
+                  <TouchableOpacity
+                    key={t}
+                    style={[styles.filterBtn, questionTopic === t && styles.filterActive, { minWidth: 110 }]}
+                    onPress={() => setQuestionTopic(t)}
+                  >
+                    <Text style={questionTopic === t ? styles.filterActiveText : {}}>{t}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </ScrollView>
             <View style={{ flexDirection: 'row', marginBottom: 10, alignItems: 'center' }}>
               <Text style={{ alignSelf: 'center', marginRight: 8 }}>Cấp độ:</Text>
@@ -276,6 +317,49 @@ export default function TeacherExamManagementScreen() {
           </View>
         </View>
       </Modal>
+      {/* Modal hiển thị kết quả học sinh */}
+      <Modal visible={resultModalVisible} animationType="slide" transparent>
+        <View style={styles.modalBg}>
+          <View style={[styles.modalContent, { maxHeight: 500 }]}>
+            <Text style={styles.modalTitle}>Kết quả: {selectedExamTitle}</Text>
+            {loadingResults ? (
+              <ActivityIndicator size="large" color="#007AFF" />
+            ) : (
+              <>
+                <Text style={{ marginBottom: 8 }}>
+                  Đã thi: {selectedExamResults.length} / {studentsInClass.length} học sinh
+                </Text>
+                <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Danh sách đã thi:</Text>
+                <FlatList
+                  data={selectedExamResults}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item, index }) => (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderColor: '#eee' }}>
+                      <Text>{index + 1}. {item.userName || item.userId}</Text>
+                      <Text>Điểm: {item.score}</Text>
+                    </View>
+                  )}
+                  ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 10 }}>Chưa có học sinh nào tham gia.</Text>}
+                />
+                <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Danh sách chưa thi:</Text>
+                <FlatList
+                  data={studentsInClass.filter(stu => !selectedExamResults.some(res => res.userId === stu.id))}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item, index }) => (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderColor: '#eee' }}>
+                      <Text>{index + 1}. {item.name || item.displayName || item.email || item.id}</Text>
+                    </View>
+                  )}
+                  ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 10 }}>Tất cả học sinh đã tham gia.</Text>}
+                />
+              </>
+            )}
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
+              <Button title="Đóng" color="#007AFF" onPress={() => setResultModalVisible(false)} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -284,7 +368,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
   input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 10 },
   addBtn: { backgroundColor: '#007AFF', padding: 10, borderRadius: 5, marginLeft: 8, justifyContent: 'center' },
-  filterBtn: { padding: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginRight: 8 },
+  filterBtn: { padding: 8, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginRight: 4 }, // giảm marginRight từ 8 xuống 4
   filterActive: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
   filterActiveText: { color: '#fff', fontWeight: 'bold' },
   examRow: { flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderColor: '#eee' },

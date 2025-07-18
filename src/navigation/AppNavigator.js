@@ -42,6 +42,7 @@ export default function AppNavigator() {
         drawerContent={props => <CustomDrawerContent {...props} />}
         screenOptions={{
           headerShown: true,
+          headerLeft: () => null, // Ẩn nút hamburger mặc định
           drawerStyle: {
             backgroundColor: '#fff',
             width: 280,

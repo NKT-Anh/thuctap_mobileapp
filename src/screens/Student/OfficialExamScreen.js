@@ -1,249 +1,144 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView } from 'react-native';
-import {
-  Text,
-  Button,
-  Card,
-  RadioButton,
-  ActivityIndicator,
-  Snackbar,
-  ProgressBar,
-} from 'react-native-paper';
-import {
-  getDoc,
-  doc,
-  getDocs,
-  setDoc,
-} from 'firebase/firestore';
+import { Text, Button, Card, RadioButton, ActivityIndicator, Snackbar, ProgressBar } from 'react-native-paper';
+import { getDocs, collection, query, where, addDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import ClassPicker from '../../components/ClassPicker';
 
-const EXAM_TIME = 30 * 60; // 30 phút
+const OFFICIAL_EXAM_TIME = 30 * 60; // 30 phút
 
 export default function OfficialExamScreen() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(EXAM_TIME);
+  const [selected, setSelected] = useState({});
+  const [timeLeft, setTimeLeft] = useState(OFFICIAL_EXAM_TIME);
   const [snackbar, setSnackbar] = useState({ visible: false, message: '', error: false });
-  const [examData, setExamData] = useState(null);
-
-  const timerRef = useRef();
   const navigation = useNavigation();
-  const { examId } = useRoute().params;
-  const { user } = useAuth();
-  const [startTime] = useState(new Date());
+  const timerRef = useRef();
+  const [selectedClass, setSelectedClass] = useState('');
 
   useEffect(() => {
-    loadExam();
-  }, []);
-
-  useEffect(() => {
-    if (questions.length > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft((t) => {
-          if (t <= 1) {
-            clearInterval(timerRef.current);
-            handleSubmit();
-            return 0;
-          }
-          return t - 1;
-        });
-      }, 1000);
+    if (selectedClass) {
+      loadQuestions(selectedClass);
     }
+  }, [selectedClass]);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          handleSubmit();
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
     return () => clearInterval(timerRef.current);
   }, [questions.length]);
 
-  const loadExam = async () => {
+  const loadQuestions = async (classCode) => {
     try {
       setLoading(true);
-
-      const resultId = `${examId}_${user?.uid}`;
-      const resultDocRef = doc(firestore, 'official_exam_results', resultId);
-      const resultSnap = await getDoc(resultDocRef);
-
-      if (resultSnap.exists()) {
-        const data = resultSnap.data();
-        navigation.replace('OfficialExamResult', {
-          result: {
-            score: data.score,
-            total: data.total,
-            correctCount: data.correctCount,
-            durationInSeconds: data.durationInSeconds,
-            answers: data.answers,
-            startedAt: data.startedAt,
-            submittedAt: data.submittedAt,
-            userName: data.userName,
-          },
-        });
+      if (!classCode) {
+        setQuestions([]);
+        setLoading(false);
         return;
       }
-
-      const examDoc = await getDoc(doc(firestore, 'exams', examId));
-      if (!examDoc.exists()) throw new Error('Không tìm thấy đề thi.');
-
-      const data = examDoc.data();
-      setExamData(data);
-
-      const questionIds = data.questionIds || [];
-
-      const questionDocs = await Promise.all(
-        questionIds.map((qid) => getDoc(doc(firestore, 'questions', qid)))
-      );
-
-      const loadedQuestions = questionDocs
-        .filter((doc) => doc.exists())
-        .map((doc) => ({ id: doc.id, ...doc.data() }));
-
-      setQuestions(loadedQuestions);
-      setSelectedAnswers({});
+      const qSnap = await getDocs(query(collection(firestore, 'questions'), where('classCode', '==', classCode)));
+      setQuestions(qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setSelected({});
     } catch (error) {
-      setSnackbar({
-        visible: true,
-        message: 'Lỗi khi tải đề thi: ' + error.message,
-        error: true,
-      });
+      setSnackbar({ visible: true, message: 'Không thể tải đề thi: ' + error.message, error: true });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelect = (questionId, answerIndex) => {
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerIndex }));
+  const handleSelect = (qid, ans) => {
+    setSelected(s => ({ ...s, [qid]: ans }));
   };
 
   const handleSubmit = async () => {
     if (questions.length === 0) return;
     clearInterval(timerRef.current);
-
-    let correctCount = 0;
-    const results = questions.map((q) => {
-      const selected = selectedAnswers[q.id];
-      const correctAnswers = Array.isArray(q.correct)
-        ? q.correct.map((c) => String(c))
-        : [String(q.correct)];
-
-      const isCorrect = correctAnswers.includes(String(selected));
-      if (isCorrect) correctCount++;
-
+    let score = 0;
+    const answers = questions.map(q => {
+      const isCorrect = selected[q.id] === q.correct;
+      if (isCorrect) score++;
       return {
         question: q.content,
-        selected: selected ?? null,
-        correct: correctAnswers,
-        options: q.options,
+        selected: selected[q.id],
+        correct: q.correct,
         isCorrect,
-        explanation: q.explanation || '',
+        explanation: q.explanation,
       };
     });
-
-    const total = questions.length;
-    const score = Math.round((correctCount * 100) / total) / 10;
-
-    const submittedAt = new Date();
-    const durationInSeconds = Math.floor((submittedAt - startTime) / 1000);
-    const resultId = `${examId}_${user?.uid}`;
-
+    // Lưu kết quả vào Firestore
     try {
-      await setDoc(doc(firestore, 'official_exam_results', resultId), {
-        userId: user?.uid || 'unknown',
-        userName: user?.name || 'Ẩn danh',
-        examId: examId,
-        classId: examData?.classId || '',
+      await addDoc(collection(firestore, 'examResults'), {
+        examId: null, // TODO: truyền examId nếu có
+        userId: null, // TODO: truyền userId nếu có (lấy từ context)
+        classId: selectedClass,
         score,
-        total,
-        correctCount, // ✅ Số câu đúng
-        durationInSeconds, // ✅ Tổng thời gian làm bài (giây)
-        answers: results,
-        startedAt: startTime.toISOString(),
-        submittedAt: submittedAt.toISOString(),
+        total: questions.length,
+        answers,
+        submittedAt: new Date(),
       });
-    } catch (error) {
-      console.error('Lỗi khi lưu kết quả:', error);
-      setSnackbar({
-        visible: true,
-        message: 'Lỗi khi lưu kết quả thi!',
-        error: true,
-      });
+    } catch (e) {
+      // Có thể hiện thông báo lỗi nếu cần
     }
-
-    navigation.replace('OfficialExamResult', {
+    navigation.navigate('OfficialExamResult', {
       result: {
         score,
-        total,
-        correctCount,
-        durationInSeconds,
-        answers: results,
-        startedAt: startTime.toISOString(),
-        submittedAt: submittedAt.toISOString(),
-        userName: user?.name || 'Ẩn danh',
+        total: questions.length,
+        answers,
       },
     });
   };
 
+  if (loading) {
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View>;
+  }
+
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const percent = timeLeft / EXAM_TIME;
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  const percent = timeLeft / OFFICIAL_EXAM_TIME;
 
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
-      <Text variant="titleLarge" style={{ marginBottom: 12 }}>🧠 Thi chính thức</Text>
-      <Text style={{ marginBottom: 8 }}>
-        Thời gian còn lại:{' '}
-        <Text style={{ fontWeight: 'bold' }}>
-          {minutes}:{seconds.toString().padStart(2, '0')}
-        </Text>
-      </Text>
+      <ClassPicker selectedCode={selectedClass} onChange={setSelectedClass} />
+      <Text variant="titleLarge" style={{ marginBottom: 12 }}>Thi chính thức</Text>
+      <Text style={{ marginBottom: 8 }}>Thời gian còn lại: <Text style={{ fontWeight: 'bold' }}>{minutes}:{seconds.toString().padStart(2, '0')}</Text></Text>
       <ProgressBar progress={percent} color="#007AFF" style={{ marginBottom: 16 }} />
-
       {questions.length === 0 ? (
         <Text>Không có câu hỏi nào.</Text>
       ) : (
         questions.map((q, idx) => (
           <Card key={q.id} style={{ marginBottom: 16 }}>
             <Card.Content>
-              <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>
-                Câu {idx + 1}: {q.content}
-              </Text>
-              <RadioButton.Group
-                onValueChange={(index) => handleSelect(q.id, index)}
-                value={selectedAnswers[q.id] ?? ''}
-              >
+              <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>Câu {idx + 1}: {q.content}</Text>
+              <RadioButton.Group onValueChange={ans => handleSelect(q.id, ans)} value={selected[q.id] || ''}>
                 {q.options.map((opt, i) => (
-                  <RadioButton.Item
-                    key={i}
-                    label={opt}
-                    value={String(i)}
-                  />
+                  <RadioButton.Item key={i} label={opt} value={opt} />
                 ))}
               </RadioButton.Group>
             </Card.Content>
           </Card>
         ))
       )}
-
       {questions.length > 0 && (
-        <Button mode="contained" onPress={handleSubmit} style={{ marginTop: 12 }}>
-          Nộp bài
-        </Button>
+        <Button mode="contained" onPress={handleSubmit} style={{ marginTop: 12 }}>Nộp bài</Button>
       )}
-
       <Snackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-        duration={2500}
+        duration={2000}
         style={{ backgroundColor: snackbar.error ? '#d32f2f' : '#43a047' }}
       >
         {snackbar.message}
       </Snackbar>
     </ScrollView>
   );
-}
+} 

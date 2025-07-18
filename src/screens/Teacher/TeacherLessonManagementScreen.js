@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, Modal, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, Modal, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { fetchLessons, addLesson, updateLesson, deleteLesson } from '../../services/lessonService';
 import ClassPicker from '../../components/ClassPicker';
+import { Card, IconButton } from 'react-native-paper';
 
 const TOPICS = ['Tất cả', 'Tin học cơ bản', 'Word', 'Excel', 'PowerPoint', 'Internet'];
 
@@ -34,7 +35,7 @@ export default function TeacherLessonManagementScreen() {
   const filteredLessons = lessons.filter(l => {
     const matchClass = l.classId === selectedClass;
     const matchSearch = l.title?.toLowerCase().includes(search.toLowerCase()) || l.content?.toLowerCase().includes(search.toLowerCase());
-    const matchTopic = topic === 'Tất cả' ? true : l.topic === topic;
+    const matchTopic = form.topic === 'Tất cả' ? true : l.topic === form.topic;
     return matchClass && matchSearch && matchTopic;
   });
 
@@ -96,59 +97,134 @@ export default function TeacherLessonManagementScreen() {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View style={{ flex: 1, backgroundColor: '#f6f8fa', padding: 16 }}>
       <ClassPicker selectedCode={selectedClass} onChange={setSelectedClass} />
-      <Text style={styles.title}>Quản lý Bài học</Text>
-      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1976d2', marginBottom: 12 }}>Quản lý Bài học</Text>
+      <View style={{ flexDirection: 'row', marginBottom: 14 }}>
         <TextInput
-          style={[styles.input, { flex: 1 }]}
+          style={{ flex: 1, borderWidth: 0, borderRadius: 8, backgroundColor: '#fff', padding: 12, marginRight: 8, elevation: 1 }}
           placeholder="Tìm kiếm bài học..."
           value={search}
           onChangeText={setSearch}
         />
-        <TouchableOpacity style={styles.addBtn} onPress={openAddModal}>
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>+ Thêm</Text>
+        <TouchableOpacity style={{ backgroundColor: '#1976d2', borderRadius: 24, padding: 10, justifyContent: 'center', alignItems: 'center', elevation: 2 }} onPress={openAddModal}>
+          <IconButton icon="plus" color="#fff" size={24} style={{ margin: 0 }} />
         </TouchableOpacity>
       </View>
-      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-        {TOPICS.map(t => (
-          <TouchableOpacity key={t} style={[styles.filterBtn, topic === t && styles.filterActive]} onPress={() => setTopic(t)}>
-            <Text style={topic === t ? styles.filterActiveText : {}}>{t}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ marginBottom: 2, paddingBottom:30 }} // tăng paddingVertical
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            minHeight: 50, // tăng minHeight
+            zIndex: 1,     // đảm bảo nằm trên
+          }}
+        >
+          <Text style={{ alignSelf: 'center', marginRight: 8, color: '#333' }}>Chủ đề:</Text>
+          {TOPICS.map(t => (
+            <TouchableOpacity
+              key={t}
+              style={{
+                backgroundColor: form.topic === t ? '#1976d2' : '#e3eafc',
+                borderRadius: 16,
+                paddingHorizontal: 20,
+                paddingVertical: 8,
+                marginRight: 8,
+                minHeight: 20, // tăng minHeight cho chip
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+              onPress={() => setForm(f => ({ ...f, topic: t }))}
+            >
+              <Text
+                style={{
+                  color: form.topic === t ? '#fff' : '#1976d2',
+                  fontWeight: 'bold',
+                  fontSize: 15
+                }}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {t}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
       <FlatList
         data={filteredLessons}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.lessonRow} onPress={() => openEditModal(item)}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.lessonTitle}>{item.title}</Text>
-              <Text style={styles.lessonMeta}>Chủ đề: {item.topic}</Text>
-              <Text numberOfLines={2} style={styles.lessonContent}>{item.content}</Text>
-              {item.attachment ? <Text style={styles.lessonAttachment}>Tệp: {item.attachment}</Text> : null}
-            </View>
-            <TouchableOpacity onPress={() => handleDelete(item)} style={styles.actionBtn}>
-              <Text style={{ color: 'red' }}>Xóa</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
+          <Card style={{ marginBottom: 14, borderRadius: 16, elevation: 2, backgroundColor: '#fff' }} onPress={() => openEditModal(item)}>
+            <Card.Title title={item.title} subtitle={`Chủ đề: ${item.topic}`} titleStyle={{ fontWeight: 'bold', fontSize: 18 }} />
+            <Card.Content>
+              <Text style={{ color: '#555', marginBottom: 8 }}>{item.content}</Text>
+              {item.attachment ? <Text style={{ color: '#1976d2', fontSize: 12 }}>Tệp: {item.attachment}</Text> : null}
+            </Card.Content>
+            <Card.Actions style={{ justifyContent: 'flex-end' }}>
+              <IconButton icon="delete" color="#d32f2f" size={22} onPress={() => handleDelete(item)} />
+            </Card.Actions>
+          </Card>
         )}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Không có bài học nào.</Text>}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20, color: '#888' }}>Không có bài học nào.</Text>}
       />
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalBg}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editLesson ? 'Sửa bài học' : 'Thêm bài học'}</Text>
-            <TextInput style={styles.input} placeholder="Tiêu đề bài học" value={form.title} onChangeText={v => setForm(f => ({ ...f, title: v }))} />
-            <TextInput style={[styles.input, { height: 80 }]} placeholder="Nội dung bài học" value={form.content} onChangeText={v => setForm(f => ({ ...f, content: v }))} multiline />
-            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-              {TOPICS.slice(1).map(t => (
-                <TouchableOpacity key={t} style={[styles.filterBtn, form.topic === t && styles.filterActive]} onPress={() => setForm(f => ({ ...f, topic: t }))}>
-                  <Text style={form.topic === t ? styles.filterActiveText : {}}>{t}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TextInput style={styles.input} placeholder="Link file/hình ảnh/video (nếu có)" value={form.attachment} onChangeText={v => setForm(f => ({ ...f, attachment: v }))} />
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 20, width: '90%' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>{editLesson ? 'Sửa bài học' : 'Thêm bài học'}</Text>
+            <TextInput
+              value={form.title}
+              onChangeText={v => setForm(f => ({ ...f, title: v }))}
+              placeholder="Tiêu đề"
+              style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8, marginBottom: 10 }}
+            />
+            <TextInput
+              value={form.content}
+              onChangeText={v => setForm(f => ({ ...f, content: v }))}
+              placeholder="Nội dung"
+              style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8, marginBottom: 10, height: 80 }}
+              multiline
+            />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10, paddingVertical: 2 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {['Tin học cơ bản', 'Word', 'Excel', 'PowerPoint', 'Internet', 'Access', 'Lập trình', 'Mạng máy tính'].map(t => (
+                  <TouchableOpacity
+                    key={t}
+                    style={{
+                      backgroundColor: form.topic === t ? '#1976d2' : '#e3eafc',
+                      borderRadius: 16,
+                      paddingHorizontal: 20, // tăng lên cho rộng
+                      paddingVertical: 8,    // tăng lên cho cao
+                      marginRight: 8,
+                      minWidth: undefined    // bỏ minWidth nếu có
+                    }}
+                    onPress={() => setForm(f => ({ ...f, topic: t }))}
+                  >
+                    <Text
+                      style={{
+                        color: form.topic === t ? '#fff' : '#1976d2',
+                        fontWeight: 'bold',
+                        fontSize: 15
+                      }}
+                      numberOfLines={1} // chỉ để tránh quá dài, không cắt chữ
+                      ellipsizeMode="tail"
+                    >
+                      {t}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+            <TextInput
+              value={form.attachment}
+              onChangeText={v => setForm(f => ({ ...f, attachment: v }))}
+              placeholder="Link file/hình ảnh/video (nếu có)"
+              style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8, marginBottom: 10 }}
+            />
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
               <Button title="Hủy" color="gray" onPress={() => setModalVisible(false)} />
               <View style={{ width: 10 }} />
