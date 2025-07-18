@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList } from 'react-native';
+import { View, FlatList, TouchableOpacity } from 'react-native';
 import {
   Text,
   Card,
@@ -13,13 +13,17 @@ import {
   collection,
   query,
   where,
+  updateDoc,
+  doc,
+  arrayUnion,
 } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, useNotification } from '../../context/AuthContext';
 import ClassPicker from '../../components/ClassPicker';
 
 export default function NotificationScreen() {
   const { user } = useAuth();
+  const { setUnreadNotificationCount } = useNotification();
 
   const [classCodes, setClassCodes] = useState([]); // List of { code, id }
   const [selectedClass, setSelectedClass] = useState('');
@@ -42,6 +46,12 @@ export default function NotificationScreen() {
       loadNotifications(selectedClass);
     }
   }, [selectedClass]);
+
+  // Đếm số thông báo chưa đọc và cập nhật context
+  useEffect(() => {
+    const count = notifications.filter(n => !n.readBy || !n.readBy.includes(user.uid)).length;
+    setUnreadNotificationCount(count);
+  }, [notifications, user.uid]);
 
   const loadStudentClasses = async () => {
     try {
@@ -106,6 +116,16 @@ export default function NotificationScreen() {
     setNotifications([]);
   };
 
+  // Đánh dấu đã đọc khi bấm vào thông báo
+  const handleRead = async (item) => {
+    if (!item.readBy || !item.readBy.includes(user.uid)) {
+      await updateDoc(doc(firestore, 'notifications', item.id), {
+        readBy: arrayUnion(user.uid)
+      });
+      loadNotifications(selectedClass);
+    }
+  };
+
   if (loading && selectedClass) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -146,26 +166,45 @@ export default function NotificationScreen() {
       </Text>
 
       <FlatList
-        data={notifications}
+        data={[...notifications].sort((a, b) => {
+          const tA = a.createdAt?.seconds ? a.createdAt.seconds : new Date(a.createdAt).getTime() / 1000;
+          const tB = b.createdAt?.seconds ? b.createdAt.seconds : new Date(b.createdAt).getTime() / 1000;
+          return tB - tA;
+        })}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <Card style={{ marginBottom: 12, elevation: 2 }}>
-            <Card.Title
-              title={item.title || 'Thông báo'}
-              subtitle={new Date(item.createdAt?.seconds * 1000).toLocaleString()}
-              left={() => (
-                <Avatar.Text
-                  size={40}
-                  label={`${index + 1}`}
-                  style={{ backgroundColor: '#FF7043' }}
-                  color="white"
-                />
-              )}
-            />
-            <Card.Content>
-              <Text>{item.content || 'Không có nội dung.'}</Text>
-            </Card.Content>
-          </Card>
+          <TouchableOpacity onPress={() => handleRead(item)}>
+            <Card style={{ marginBottom: 12, elevation: 2 }}>
+              <Card.Title
+                title={item.title || 'Thông báo'}
+                subtitle={new Date(item.createdAt?.seconds * 1000).toLocaleString()}
+                left={() => (
+                  <Avatar.Text
+                    size={40}
+                    label={`${index + 1}`}
+                    style={{ backgroundColor: '#FF7043' }}
+                    color="white"
+                  />
+                )}
+                right={() => (
+                  // Chấm đỏ nếu chưa đọc
+                  (!item.readBy || !item.readBy.includes(user.uid)) && (
+                    <View style={{
+                      backgroundColor: 'red',
+                      borderRadius: 10,
+                      width: 10,
+                      height: 10,
+                      marginRight: 10,
+                      marginTop: 8
+                    }} />
+                  )
+                )}
+              />
+              <Card.Content>
+                <Text>{item.content || 'Không có nội dung.'}</Text>
+              </Card.Content>
+            </Card>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={
           <Text

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, TouchableOpacity, Modal, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
-import { fetchNotifications, addNotification, deleteNotification, fetchNotificationsByTeacherEmail } from '../../services/notificationService';
+import { fetchNotifications, addNotification, deleteNotification, fetchNotificationsByTeacherEmail, markNotificationAsRead, getUnreadNotificationCount } from '../../services/notificationService';
 import { getTeacherClassesWithStats, getClassDetail } from '../../services/teacherClassService';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/AuthContext';
 import { firestore } from '../../../firebaseConfig';
 import { getDocs, collection, query, where, orderBy } from 'firebase/firestore';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,6 +11,7 @@ import { format } from 'date-fns';
 
 export default function TeacherNotificationScreen() {
   const { user } = useAuth();
+  const { setUnreadNotificationCount } = useNotification();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -22,6 +24,7 @@ export default function TeacherNotificationScreen() {
   const [selectedNoti, setSelectedNoti] = useState(null);
   const [classMap, setClassMap] = useState({});
   const [showSearch, setShowSearch] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     loadNotifications();
@@ -43,6 +46,16 @@ export default function TeacherNotificationScreen() {
     };
     fetchClassNames();
   }, [notifications]);
+
+  // Đếm số thông báo chưa đọc
+  useEffect(() => {
+    async function fetchCount() {
+      const count = await getUnreadNotificationCount(user.uid);
+      setUnreadCount(count);
+      setUnreadNotificationCount(count);
+    }
+    fetchCount();
+  }, [user.uid, notifications]);
 
   const loadNotifications = async () => {
     try {
@@ -204,9 +217,18 @@ export default function TeacherNotificationScreen() {
         keyExtractor={item => item.id}
         renderItem={({ item }) => {
           const dateStr = getDateStr(item.createdAt);
+          const isUnread = !item.readBy || !item.readBy.includes(user.uid);
           return (
             <TouchableOpacity
-              onPress={() => { setSelectedNoti(item); setDetailModal(true); }}
+              onPress={async () => {
+                setSelectedNoti(item);
+                setDetailModal(true);
+                if (isUnread) {
+                  await markNotificationAsRead(item.id, user.uid);
+                  // Cập nhật lại danh sách để badge đỏ biến mất
+                  loadNotifications();
+                }
+              }}
               activeOpacity={0.85}
               style={styles.notiCardWrap}
             >
@@ -230,6 +252,19 @@ export default function TeacherNotificationScreen() {
                   </View>
                   <Text style={styles.notiContentNew} numberOfLines={2}>{item.content}</Text>
                 </View>
+                {/* Badge đỏ nếu chưa đọc */}
+                {isUnread && (
+                  <View style={{
+                    backgroundColor: 'red',
+                    borderRadius: 10,
+                    paddingHorizontal: 7,
+                    alignSelf: 'flex-start',
+                    marginLeft: 8,
+                    marginTop: 2
+                  }}>
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 12 }}>Mới</Text>
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           );

@@ -118,19 +118,19 @@ export default function TeacherClassManagementScreen() {
   };
   const handleAddStudent = async () => {
     if (!studentInput.trim()) return;
-    // Kiểm tra email có tồn tại và có role student không
+
     try {
       const users = await fetchUsersByEmails([studentInput.trim()]);
       if (!users.length || users[0].role !== 'student') {
         Alert.alert('Lỗi', 'Tài khoản chưa tồn tại hoặc không phải học viên!');
         return;
       }
-      // Kiểm tra nếu id đã có trong lớp thì báo lỗi
+
       if ((form.students || []).includes(users[0].id)) {
         Alert.alert('Thông báo', 'Học viên đã có trong lớp này!');
         return;
       }
-      // Thêm id user vào danh sách học viên (nếu chưa có)
+
       setForm(f => ({ ...f, students: [...(f.students || []), users[0].id] }));
       setStudentInput('');
     } catch (e) {

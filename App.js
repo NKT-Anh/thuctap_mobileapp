@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import TeacherNavigator from './src/navigation/TeacherNavigator';
 import LoginScreen from './src/screens/LoginScreen';
-import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { AuthProvider, useAuth, NotificationProvider } from './src/context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import StudentNavigator from './src/navigation/StudentNavigator';
@@ -35,12 +35,14 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <PaperProvider>
-      <AuthProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </AuthProvider>
-    </PaperProvider>
+    <NotificationProvider>
+      <PaperProvider>
+        <AuthProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </AuthProvider>
+      </PaperProvider>
+    </NotificationProvider>
   );
 }

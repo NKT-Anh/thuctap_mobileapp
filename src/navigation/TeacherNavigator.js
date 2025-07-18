@@ -16,7 +16,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, StyleSheet } from 'react-native';
 import TeacherClassDetailScreen from '../screens/Teacher/TeacherClassDetailScreen';
-
+import TeacherChatScreen from '../screens/Teacher/TeacherChatScreen';
+import TeacherChatDetailScreen from '../screens/Teacher/TeacherChatDetailScreen';
+import TeacherProfileEditScreen from '../screens/Teacher/TeacherProfileEditScreen';
+import { useNotification } from '../context/AuthContext';
 const Tab = createBottomTabNavigator();
 
 const ExamStack = createStackNavigator();
@@ -50,6 +53,7 @@ function MeScreen({ navigation }) {
         <Text style={styles.meEmail}>{user?.email || 'Email'}</Text>
       </View>
       <View style={styles.meBtnGroup}>
+        <Button mode="contained-tonal" style={styles.meBtn} icon="account-edit" onPress={() => navigation.navigate('ProfileEdit')}>Chỉnh sửa thông tin</Button>
         <Button mode="contained-tonal" style={styles.meBtn} icon="bell-outline" onPress={() => navigation.navigate('Notification')}>Thông báo</Button>
         <Button mode="contained-tonal" style={styles.meBtn} icon="chart-bar" onPress={() => navigation.navigate('Statistic')}>Thống kê</Button>
         <Button mode="contained-tonal" style={styles.meBtn} icon="account-group-outline" onPress={() => navigation.navigate('StudentTracking')}>Theo dõi học viên</Button>
@@ -79,6 +83,7 @@ function MeTabNavigator() {
       <MeStack.Screen name="Statistic" component={TeacherStatisticScreen} options={{ headerShown: false }} />
       <MeStack.Screen name="StudentTracking" component={TeacherStudentTrackingScreen} options={{ headerShown: false }} />
       <MeStack.Screen name="QuestionBank" component={TeacherQuestionBankScreen} options={{ headerShown: false }} />
+      <MeStack.Screen name="ProfileEdit" component={TeacherProfileEditScreen} options={{ title: 'Chỉnh sửa thông tin' }} />
     </MeStack.Navigator>
   );
 }
@@ -90,11 +95,14 @@ export default function TeacherNavigator() {
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       <RootStack.Screen name="MainTabs" component={MainTabs} />
       <RootStack.Screen name="TeacherClassDetail" component={TeacherClassDetailScreen} options={{ headerShown: true, title: 'Chi tiết lớp' }} />
+      <RootStack.Screen name="TeacherChatScreen" component={TeacherChatScreen} options={{ headerShown: true, title: 'Danh sách chat' }} />
+      <RootStack.Screen name="TeacherChatDetail" component={TeacherChatDetailScreen} options={{ headerShown: true, title: 'Chi tiết chat' }} />
     </RootStack.Navigator>
   );
 }
 
 function MainTabs() {
+  const { unreadNotificationCount } = useNotification();
   return (
     <Tab.Navigator
       initialRouteName="Dashboard"
@@ -118,14 +126,29 @@ function MainTabs() {
             case 'Exam':
               return <Ionicons name="document-text" size={size} color={color} />;
             case 'Me':
-              return <Ionicons name="person" size={size} color={color} />;
+              return (
+                <View>
+                  <Ionicons name="person" size={size} color={color} />
+                  {unreadNotificationCount > 0 && (
+                    <View style={{
+                      position: 'absolute',
+                      top: -2,
+                      right: -2,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      backgroundColor: 'red'
+                    }} />
+                  )}
+                </View>
+              );
             default:
               return null;
           }
         },
       })}
     >
-      <Tab.Screen name="Dashboard" component={TeacherDashboardScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="Dashboard" component={TeacherChatScreen} options={{ title: 'Tin nhắn' }} />
       <Tab.Screen name="Class" component={TeacherClassManagementScreen} options={{ title: 'Lớp học' }} />
       <Tab.Screen name="Lesson" component={TeacherLessonManagementScreen} options={{ title: 'Bài học' }} />
       <Tab.Screen name="Exam" children={() => (

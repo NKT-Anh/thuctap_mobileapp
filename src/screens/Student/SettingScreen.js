@@ -25,7 +25,7 @@ export default function SettingScreen() {
         <Surface style={styles.section}>
           <SettingItem label="Tài khoản" onPress={() => navigation.navigate('Profile')} />
           <SettingItem label="Tiến độ học" onPress={() => navigation.navigate('Progress')} />
-          <SettingItem label="Trao đổi" onPress={() => navigation.navigate('Chat')} />
+          <SettingItem label="Trao đổi" onPress={() => navigation.navigate('SelectClassForChat')} />
           <SettingItem label="Tham gia lớp" onPress={() => navigation.navigate('JoinClass')} />
         </Surface>
 

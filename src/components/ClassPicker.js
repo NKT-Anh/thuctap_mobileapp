@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Text, Menu, Button, ActivityIndicator } from 'react-native-paper';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import { getDocs, collection, query, where, or, orFilter } from 'firebase/firestore';
 import { firestore } from '../../firebaseConfig';
 import { useAuth } from '../context/AuthContext';
 
@@ -19,13 +19,31 @@ export default function ClassPicker({ selectedCode, onChange }) {
     try {
       setLoading(true);
       let q;
-      if (user?.role === 'teacher') {
-        q = query(collection(firestore, 'classes'), where('teacher', '==', user.uid));
+
+      if (!user) return;
+
+      if (user.role === 'teacher') {
+        q = query(
+          collection(firestore, 'classes'),
+          or(
+            where('teacher', '==', user.uid),
+            where('teacher', '==', user.email)
+          )
+        );
       } else {
-        q = query(collection(firestore, 'classes'), where('students', 'array-contains', user.uid));
+        q = query(
+          collection(firestore, 'classes'),
+          or(
+            where('students', 'array-contains', user.uid),
+            where('students', 'array-contains', user.email)
+          )
+        );
       }
+
       const querySnapshot = await getDocs(q);
       setClasses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error('Failed to load classes:', error);
     } finally {
       setLoading(false);
     }
@@ -48,9 +66,16 @@ export default function ClassPicker({ selectedCode, onChange }) {
         }
       >
         {classes.map(c => (
-          <Menu.Item key={c.code} onPress={() => { setVisible(false); onChange(c.code); }} title={`${c.name} (${c.code})`} />
+          <Menu.Item
+            key={c.code}
+            onPress={() => {
+              setVisible(false);
+              onChange(c.code);
+            }}
+            title={`${c.name} (${c.code})`}
+          />
         ))}
       </Menu>
     </View>
   );
-} 
+}

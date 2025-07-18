@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import SelectClassForChatScreen from '../screens/Student/SelectClassForChatScreen';
 
 import MyClassesScreen from '../screens/Student/MyClassesScreen';
 import LessonListScreen from '../screens/Student/LessonListScreen';
@@ -18,11 +19,14 @@ import OfficialExamResultScreen from '../screens/Student/OfficialExamResultScree
 import ExamTypeScreen from '../screens/Student/ExamTypeScreen';
 import OfficialExamListScreen from '../screens/Student/OfficialExamListScreen';
 import MockExamListScreen from '../screens/Student/MockExamListScreen';
+import { useNotification } from '../context/AuthContext';
+import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 function MainTabs() {
+  const { unreadNotificationCount } = useNotification();
   return (
     <Tab.Navigator
       initialRouteName="MyClasses"
@@ -59,6 +63,24 @@ function MainTabs() {
             case 'Settings':
               iconName = 'settings';
               break;
+          }
+          if (route.name === 'Notification') {
+            return (
+              <View>
+                <Ionicons name={iconName} size={size} color={color} />
+                {unreadNotificationCount > 0 && (
+                  <View style={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -2,
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: 'red'
+                  }} />
+                )}
+              </View>
+            );
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -129,7 +151,7 @@ export default function StudentNavigator() {
       <Stack.Screen name="OfficialExamList" component={OfficialExamListScreen} options={{ title: 'Danh sách bài kiểm tra' }} />
       <Stack.Screen name="MockExamList" component={MockExamListScreen} options={{ title: 'Danh sách bài luyện tập' }} />
       <Stack.Screen name="MockExam" component={MockExamScreen} options={{ title: 'Luyện tập' }} />
-
+      <Stack.Screen name="SelectClassForChat" component={SelectClassForChatScreen} />
     </Stack.Navigator>
   );
 }

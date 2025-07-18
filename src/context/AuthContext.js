@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext } from 'react';
 
 const AuthContext = createContext();
+const NotificationContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -17,4 +18,17 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+export function NotificationProvider({ children }) {
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  return (
+    <NotificationContext.Provider value={{ unreadNotificationCount, setUnreadNotificationCount }}>
+      {children}
+    </NotificationContext.Provider>
+  );
+}
+
+export function useNotification() {
+  return useContext(NotificationContext);
 } 
