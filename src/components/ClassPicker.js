@@ -20,9 +20,9 @@ export default function ClassPicker({ selectedCode, onChange }) {
       setLoading(true);
       let q;
       if (user?.role === 'teacher') {
-        q = query(collection(firestore, 'classes'), where('teacher', '==', user.email));
+        q = query(collection(firestore, 'classes'), where('teacher', '==', user.uid));
       } else {
-        q = query(collection(firestore, 'classes'), where('students', 'array-contains', user.email));
+        q = query(collection(firestore, 'classes'), where('students', 'array-contains', user.uid));
       }
       const querySnapshot = await getDocs(q);
       setClasses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));

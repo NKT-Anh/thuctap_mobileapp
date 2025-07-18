@@ -1,130 +1,249 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, ScrollView } from 'react-native';
-import { Text, Button, Card, RadioButton, ActivityIndicator, Snackbar, ProgressBar } from 'react-native-paper';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import {
+  Text,
+  Button,
+  Card,
+  RadioButton,
+  ActivityIndicator,
+  Snackbar,
+  ProgressBar,
+} from 'react-native-paper';
+import {
+  getDoc,
+  doc,
+  getDocs,
+  setDoc,
+} from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { useNavigation } from '@react-navigation/native';
-import ClassPicker from '../../components/ClassPicker';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
 
-const OFFICIAL_EXAM_TIME = 30 * 60; // 30 phút
+const EXAM_TIME = 30 * 60; // 30 phút
 
 export default function OfficialExamScreen() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState({});
-  const [timeLeft, setTimeLeft] = useState(OFFICIAL_EXAM_TIME);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [timeLeft, setTimeLeft] = useState(EXAM_TIME);
   const [snackbar, setSnackbar] = useState({ visible: false, message: '', error: false });
-  const navigation = useNavigation();
+  const [examData, setExamData] = useState(null);
+
   const timerRef = useRef();
-  const [selectedClass, setSelectedClass] = useState('');
+  const navigation = useNavigation();
+  const { examId } = useRoute().params;
+  const { user } = useAuth();
+  const [startTime] = useState(new Date());
 
   useEffect(() => {
-    if (selectedClass) {
-      loadQuestions(selectedClass);
+    loadExam();
+  }, []);
+
+  useEffect(() => {
+    if (questions.length > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft((t) => {
+          if (t <= 1) {
+            clearInterval(timerRef.current);
+            handleSubmit();
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
     }
-  }, [selectedClass]);
-
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) {
-          clearInterval(timerRef.current);
-          handleSubmit();
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
     return () => clearInterval(timerRef.current);
   }, [questions.length]);
 
-  const loadQuestions = async (classCode) => {
+  const loadExam = async () => {
     try {
       setLoading(true);
-      if (!classCode) {
-        setQuestions([]);
-        setLoading(false);
+
+      const resultId = `${examId}_${user?.uid}`;
+      const resultDocRef = doc(firestore, 'official_exam_results', resultId);
+      const resultSnap = await getDoc(resultDocRef);
+
+      if (resultSnap.exists()) {
+        const data = resultSnap.data();
+        navigation.replace('OfficialExamResult', {
+          result: {
+            score: data.score,
+            total: data.total,
+            correctCount: data.correctCount,
+            durationInSeconds: data.durationInSeconds,
+            answers: data.answers,
+            startedAt: data.startedAt,
+            submittedAt: data.submittedAt,
+            userName: data.userName,
+          },
+        });
         return;
       }
-      const qSnap = await getDocs(query(collection(firestore, 'questions'), where('classCode', '==', classCode)));
-      setQuestions(qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setSelected({});
+
+      const examDoc = await getDoc(doc(firestore, 'exams', examId));
+      if (!examDoc.exists()) throw new Error('Không tìm thấy đề thi.');
+
+      const data = examDoc.data();
+      setExamData(data);
+
+      const questionIds = data.questionIds || [];
+
+      const questionDocs = await Promise.all(
+        questionIds.map((qid) => getDoc(doc(firestore, 'questions', qid)))
+      );
+
+      const loadedQuestions = questionDocs
+        .filter((doc) => doc.exists())
+        .map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      setQuestions(loadedQuestions);
+      setSelectedAnswers({});
     } catch (error) {
-      setSnackbar({ visible: true, message: 'Không thể tải đề thi: ' + error.message, error: true });
+      setSnackbar({
+        visible: true,
+        message: 'Lỗi khi tải đề thi: ' + error.message,
+        error: true,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelect = (qid, ans) => {
-    setSelected(s => ({ ...s, [qid]: ans }));
+  const handleSelect = (questionId, answerIndex) => {
+    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerIndex }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (questions.length === 0) return;
     clearInterval(timerRef.current);
-    let score = 0;
-    const answers = questions.map(q => {
-      const isCorrect = selected[q.id] === q.correct;
-      if (isCorrect) score++;
+
+    let correctCount = 0;
+    const results = questions.map((q) => {
+      const selected = selectedAnswers[q.id];
+      const correctAnswers = Array.isArray(q.correct)
+        ? q.correct.map((c) => String(c))
+        : [String(q.correct)];
+
+      const isCorrect = correctAnswers.includes(String(selected));
+      if (isCorrect) correctCount++;
+
       return {
         question: q.content,
-        selected: selected[q.id],
-        correct: q.correct,
+        selected: selected ?? null,
+        correct: correctAnswers,
+        options: q.options,
         isCorrect,
-        explanation: q.explanation,
+        explanation: q.explanation || '',
       };
     });
-    navigation.navigate('OfficialExamResult', {
+
+    const total = questions.length;
+    const score = Math.round((correctCount * 100) / total) / 10;
+
+    const submittedAt = new Date();
+    const durationInSeconds = Math.floor((submittedAt - startTime) / 1000);
+    const resultId = `${examId}_${user?.uid}`;
+
+    try {
+      await setDoc(doc(firestore, 'official_exam_results', resultId), {
+        userId: user?.uid || 'unknown',
+        userName: user?.name || 'Ẩn danh',
+        examId: examId,
+        classId: examData?.classId || '',
+        score,
+        total,
+        correctCount, // ✅ Số câu đúng
+        durationInSeconds, // ✅ Tổng thời gian làm bài (giây)
+        answers: results,
+        startedAt: startTime.toISOString(),
+        submittedAt: submittedAt.toISOString(),
+      });
+    } catch (error) {
+      console.error('Lỗi khi lưu kết quả:', error);
+      setSnackbar({
+        visible: true,
+        message: 'Lỗi khi lưu kết quả thi!',
+        error: true,
+      });
+    }
+
+    navigation.replace('OfficialExamResult', {
       result: {
         score,
-        total: questions.length,
-        answers,
+        total,
+        correctCount,
+        durationInSeconds,
+        answers: results,
+        startedAt: startTime.toISOString(),
+        submittedAt: submittedAt.toISOString(),
+        userName: user?.name || 'Ẩn danh',
       },
     });
   };
 
-  if (loading) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View>;
-  }
-
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const percent = timeLeft / OFFICIAL_EXAM_TIME;
+  const percent = timeLeft / EXAM_TIME;
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
-      <ClassPicker selectedCode={selectedClass} onChange={setSelectedClass} />
-      <Text variant="titleLarge" style={{ marginBottom: 12 }}>Thi chính thức</Text>
-      <Text style={{ marginBottom: 8 }}>Thời gian còn lại: <Text style={{ fontWeight: 'bold' }}>{minutes}:{seconds.toString().padStart(2, '0')}</Text></Text>
+      <Text variant="titleLarge" style={{ marginBottom: 12 }}>🧠 Thi chính thức</Text>
+      <Text style={{ marginBottom: 8 }}>
+        Thời gian còn lại:{' '}
+        <Text style={{ fontWeight: 'bold' }}>
+          {minutes}:{seconds.toString().padStart(2, '0')}
+        </Text>
+      </Text>
       <ProgressBar progress={percent} color="#007AFF" style={{ marginBottom: 16 }} />
+
       {questions.length === 0 ? (
         <Text>Không có câu hỏi nào.</Text>
       ) : (
         questions.map((q, idx) => (
           <Card key={q.id} style={{ marginBottom: 16 }}>
             <Card.Content>
-              <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>Câu {idx + 1}: {q.content}</Text>
-              <RadioButton.Group onValueChange={ans => handleSelect(q.id, ans)} value={selected[q.id] || ''}>
+              <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>
+                Câu {idx + 1}: {q.content}
+              </Text>
+              <RadioButton.Group
+                onValueChange={(index) => handleSelect(q.id, index)}
+                value={selectedAnswers[q.id] ?? ''}
+              >
                 {q.options.map((opt, i) => (
-                  <RadioButton.Item key={i} label={opt} value={opt} />
+                  <RadioButton.Item
+                    key={i}
+                    label={opt}
+                    value={String(i)}
+                  />
                 ))}
               </RadioButton.Group>
             </Card.Content>
           </Card>
         ))
       )}
+
       {questions.length > 0 && (
-        <Button mode="contained" onPress={handleSubmit} style={{ marginTop: 12 }}>Nộp bài</Button>
+        <Button mode="contained" onPress={handleSubmit} style={{ marginTop: 12 }}>
+          Nộp bài
+        </Button>
       )}
+
       <Snackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-        duration={2000}
+        duration={2500}
         style={{ backgroundColor: snackbar.error ? '#d32f2f' : '#43a047' }}
       >
         {snackbar.message}
       </Snackbar>
     </ScrollView>
   );
-} 
+}

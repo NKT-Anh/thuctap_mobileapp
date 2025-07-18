@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Linking } from 'react-native';
-import { Text, Button, Card, ActivityIndicator, Snackbar } from 'react-native-paper';
+import {
+  Text,
+  Button,
+  Card,
+  ActivityIndicator,
+  Snackbar,
+  Divider,
+  Surface,
+} from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
@@ -24,7 +32,7 @@ export default function LessonDetailScreen() {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setLesson({ id: docSnap.id, ...docSnap.data() });
-        setCompleted(!!docSnap.data().completed); // Tạm thời, thực tế sẽ lưu theo user
+        setCompleted(!!docSnap.data().completed);
       }
     } catch (error) {
       setSnackbar({ visible: true, message: 'Không thể tải bài học: ' + error.message, error: true });
@@ -35,7 +43,6 @@ export default function LessonDetailScreen() {
 
   const handleMarkComplete = async () => {
     try {
-      // Thực tế sẽ lưu trạng thái hoàn thành vào user_lesson hoặc profile user
       await updateDoc(doc(firestore, 'lessons', lessonId), { completed: true });
       setCompleted(true);
       setSnackbar({ visible: true, message: 'Đã đánh dấu hoàn thành!', error: false });
@@ -45,38 +52,84 @@ export default function LessonDetailScreen() {
   };
 
   if (loading) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View>;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
+
   if (!lesson) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Bài học không tồn tại.</Text></View>;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text variant="bodyLarge">Bài học không tồn tại.</Text>
+      </View>
+    );
   }
 
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
-      <Card style={{ marginBottom: 16 }}>
-        <Card.Title title={lesson.title} subtitle={lesson.topic} />
+      <Card mode="outlined" style={{ marginBottom: 16, borderRadius: 12 }}>
+        <Card.Title
+          title={lesson.title}
+          subtitle={`📚 Chủ đề: ${lesson.topic}`}
+          titleStyle={{ fontSize: 20, fontWeight: 'bold' }}
+        />
+        <Divider />
         <Card.Content>
-          <Text style={{ marginBottom: 12 }}>{lesson.content}</Text>
+          <Text variant="bodyMedium" style={{ marginVertical: 12, lineHeight: 22 }}>
+            {lesson.content}
+          </Text>
+
           {lesson.videoUrl && (
-            <Button icon="play" mode="outlined" onPress={() => Linking.openURL(lesson.videoUrl)} style={{ marginBottom: 8 }}>
+            <Button
+              icon="play-circle"
+              mode="elevated"
+              onPress={() => Linking.openURL(lesson.videoUrl)}
+              style={{ marginTop: 8 }}
+            >
               Xem video hướng dẫn
             </Button>
           )}
+
           {lesson.attachment && (
-            <Button icon="file" mode="outlined" onPress={() => Linking.openURL(lesson.attachment)}>
-              Xem tài liệu đính kèm
+            <Button
+              icon="file-document"
+              mode="outlined"
+              onPress={() => Linking.openURL(lesson.attachment)}
+              style={{ marginTop: 8 }}
+            >
+              Tài liệu đính kèm
             </Button>
           )}
         </Card.Content>
       </Card>
-      <Button
-        mode={completed ? 'contained-tonal' : 'contained'}
-        icon={completed ? 'check' : 'check-outline'}
-        disabled={completed}
-        onPress={handleMarkComplete}
+
+      <Surface
+        style={{
+          elevation: 2,
+          borderRadius: 12,
+          padding: 16,
+          backgroundColor: completed ? '#e8f5e9' : '#f1f8e9',
+          marginBottom: 20,
+        }}
       >
-        {completed ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
-      </Button>
+        <Text
+          variant="titleMedium"
+          style={{ marginBottom: 12, color: completed ? '#2e7d32' : '#33691e' }}
+        >
+          {completed ? '✅ Bạn đã hoàn thành bài học này!' : '🔔 Bạn chưa hoàn thành bài học.'}
+        </Text>
+        <Button
+          icon={completed ? 'check-circle' : 'check-outline'}
+          mode={completed ? 'contained-tonal' : 'contained'}
+          disabled={completed}
+          onPress={handleMarkComplete}
+        >
+          {completed ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
+        </Button>
+      </Surface>
+
       <Snackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
@@ -87,4 +140,4 @@ export default function LessonDetailScreen() {
       </Snackbar>
     </ScrollView>
   );
-} 
+}

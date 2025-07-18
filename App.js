@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import StudentNavigator from './src/navigation/StudentNavigator';
+import 'react-native-reanimated';
 
 function RootNavigator() {
   const { user, login, logout } = useAuth();

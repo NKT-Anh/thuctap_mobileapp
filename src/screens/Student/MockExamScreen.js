@@ -1,142 +1,194 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView } from 'react-native';
-import { Text, Button, Card, RadioButton, ActivityIndicator, Snackbar, ProgressBar } from 'react-native-paper';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import {
+  Text,
+  Button,
+  Card,
+  RadioButton,
+  ActivityIndicator,
+  Snackbar,
+  ProgressBar,
+} from 'react-native-paper';
+import {
+  getDoc,
+  doc,
+} from 'firebase/firestore';
 import { firestore } from '../../../firebaseConfig';
-import { useNavigation } from '@react-navigation/native';
-import ClassPicker from '../../components/ClassPicker';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
 
 const MOCK_EXAM_TIME = 20 * 60; // 20 phút
 
 export default function MockExamScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { examId } = route.params || {};
+  const { user } = useAuth();
+
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState({});
   const [timeLeft, setTimeLeft] = useState(MOCK_EXAM_TIME);
   const [snackbar, setSnackbar] = useState({ visible: false, message: '', error: false });
-  const navigation = useNavigation();
+  const [examInfo, setExamInfo] = useState(null);
   const timerRef = useRef();
-  const [selectedClass, setSelectedClass] = useState('');
 
   useEffect(() => {
-    if (selectedClass) {
-      loadQuestions(selectedClass);
-    }
-  }, [selectedClass]);
+    if (examId) loadExamData(examId);
+  }, [examId]);
 
   useEffect(() => {
+    if (!questions.length) return;
+
     timerRef.current = setInterval(() => {
-      setTimeLeft(t => {
+      setTimeLeft((t) => {
         if (t <= 1) {
           clearInterval(timerRef.current);
-          handleSubmit();
           return 0;
         }
         return t - 1;
       });
     }, 1000);
+
     return () => clearInterval(timerRef.current);
   }, [questions.length]);
 
-  const loadQuestions = async (classCode) => {
+  const loadExamData = async (examId) => {
     try {
       setLoading(true);
-      if (!classCode) {
-        setQuestions([]);
-        setLoading(false);
-        return;
-      }
-      const qSnap = await getDocs(query(collection(firestore, 'questions'), where('classCode', '==', classCode)));
-      setQuestions(qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const examRef = doc(firestore, 'exams', examId);
+      const examSnap = await getDoc(examRef);
+
+      if (!examSnap.exists()) throw new Error('Không tìm thấy đề thi.');
+
+      const examData = examSnap.data();
+      setExamInfo(examData);
+
+      const questionIds = examData.questionIds || [];
+      const questionSnaps = await Promise.all(
+        questionIds.map((qid) => getDoc(doc(firestore, 'questions', qid)))
+      );
+
+      const fetchedQuestions = questionSnaps
+        .filter((snap) => snap.exists())
+        .map((snap) => ({ id: snap.id, ...snap.data() }));
+
+      setQuestions(fetchedQuestions);
       setSelected({});
+      setTimeLeft(MOCK_EXAM_TIME);
     } catch (error) {
-      setSnackbar({ visible: true, message: 'Không thể tải đề thi: ' + error.message, error: true });
+      setSnackbar({ visible: true, message: 'Lỗi tải đề: ' + error.message, error: true });
     } finally {
       setLoading(false);
     }
   };
 
   const handleSelect = (qid, ans) => {
-    setSelected(s => ({ ...s, [qid]: ans }));
+    if (selected[qid]) return;
+    setSelected((prev) => ({ ...prev, [qid]: ans }));
   };
 
-  const handleSubmit = () => {
-    if (questions.length === 0) return;
-    clearInterval(timerRef.current);
-    let score = 0;
-    let topicStats = {};
-    const answers = questions.map(q => {
-      const isCorrect = selected[q.id] === q.correct;
-      if (isCorrect) score++;
-      // Thống kê theo chủ đề
-      if (!topicStats[q.topic]) topicStats[q.topic] = { total: 0, correct: 0 };
-      topicStats[q.topic].total++;
-      if (isCorrect) topicStats[q.topic].correct++;
-      return {
-        question: q.content,
-        selected: selected[q.id],
-        correct: q.correct,
-        isCorrect,
-        explanation: q.explanation,
-        topic: q.topic,
-      };
-    });
-    // Tính tỷ lệ đúng theo chủ đề
-    const topicPercent = {};
-    Object.entries(topicStats).forEach(([topic, stat]) => {
-      topicPercent[topic] = Math.round((stat.correct / stat.total) * 100);
-    });
-    navigation.navigate('MockExamResult', {
-      result: {
-        score,
-        total: questions.length,
-        answers,
-        topicStats: topicPercent,
-      },
-    });
+  const handleRetry = () => {
+    loadExamData(examId);
   };
-
-  if (loading) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View>;
-  }
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const percent = timeLeft / MOCK_EXAM_TIME;
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={{ flex: 1, padding: 16 }}>
-      <ClassPicker selectedCode={selectedClass} onChange={setSelectedClass} />
-      <Text variant="titleLarge" style={{ marginBottom: 12 }}>Thi thử</Text>
-      <Text style={{ marginBottom: 8 }}>Thời gian còn lại: <Text style={{ fontWeight: 'bold' }}>{minutes}:{seconds.toString().padStart(2, '0')}</Text></Text>
+      <Text variant="titleLarge" style={{ marginBottom: 12 }}>
+        {examInfo?.title || 'Bài thi thử'}
+      </Text>
+
+      <Text style={{ marginBottom: 8 }}>
+        Thời gian còn lại:{' '}
+        <Text style={{ fontWeight: 'bold' }}>
+          {minutes}:{seconds.toString().padStart(2, '0')}
+        </Text>
+      </Text>
       <ProgressBar progress={percent} color="#007AFF" style={{ marginBottom: 16 }} />
+
       {questions.length === 0 ? (
         <Text>Không có câu hỏi nào.</Text>
       ) : (
-        questions.map((q, idx) => (
-          <Card key={q.id} style={{ marginBottom: 16 }}>
-            <Card.Content>
-              <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>Câu {idx + 1}: {q.content}</Text>
-              <RadioButton.Group onValueChange={ans => handleSelect(q.id, ans)} value={selected[q.id] || ''}>
-                {q.options.map((opt, i) => (
-                  <RadioButton.Item key={i} label={opt} value={opt} />
-                ))}
-              </RadioButton.Group>
-            </Card.Content>
-          </Card>
-        ))
+        questions.map((q, idx) => {
+          const selectedAnswer = selected[q.id];
+          const correctAnswer = q.options[q.correct];
+          const isCorrect = selectedAnswer === correctAnswer;
+
+          return (
+            <Card key={q.id} style={{ marginBottom: 16 }}>
+              <Card.Content>
+                <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>
+                  Câu {idx + 1}: {q.content}
+                </Text>
+
+                <RadioButton.Group
+                  onValueChange={(ans) => handleSelect(q.id, ans)}
+                  value={selectedAnswer || ''}
+                >
+                  {q.options.map((opt, i) => (
+                    <RadioButton.Item
+                      key={i}
+                      label={opt}
+                      value={opt}
+                      disabled={!!selected[q.id]}
+                    />
+                  ))}
+                </RadioButton.Group>
+
+                {selected[q.id] && (
+                  <View style={{ marginTop: 8 }}>
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        color: isCorrect ? '#2e7d32' : '#d32f2f',
+                      }}
+                    >
+                      {isCorrect ? '✅ Chính xác!' : '❌ Sai'}
+                    </Text>
+                    {!isCorrect && (
+                      <Text>Đáp án đúng: {correctAnswer}</Text>
+                    )}
+                    {q.explanation && (
+                      <Text style={{ fontStyle: 'italic', marginTop: 4 }}>
+                        Giải thích: {q.explanation}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </Card.Content>
+            </Card>
+          );
+        })
       )}
-      {questions.length > 0 && (
-        <Button mode="contained" onPress={handleSubmit} style={{ marginTop: 12 }}>Nộp bài</Button>
-      )}
+
+      <Button
+        mode="contained"
+        onPress={handleRetry}
+        style={{ marginTop: 12 }}
+      >
+        🔁 Làm lại
+      </Button>
+
       <Snackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-        duration={2000}
+        duration={2500}
         style={{ backgroundColor: snackbar.error ? '#d32f2f' : '#43a047' }}
       >
         {snackbar.message}
       </Snackbar>
     </ScrollView>
   );
-} 
+}
