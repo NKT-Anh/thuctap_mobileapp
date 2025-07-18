@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< Updated upstream
 import { View, ScrollView, StyleSheet, FlatList } from 'react-native';
+=======
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+>>>>>>> Stashed changes
 import { 
   Card, 
   Title, 
   Text, 
+<<<<<<< Updated upstream
   TextInput, 
   Button, 
   FAB, 
@@ -20,10 +25,35 @@ import {
   Avatar
 } from 'react-native-paper';
 import { fetchLessons, addLesson, updateLesson, deleteLesson } from '../../services/lessonService';
+=======
+  Button, 
+  ActivityIndicator,
+  Surface,
+  Divider,
+  Chip,
+  Avatar,
+  IconButton,
+  Menu,
+  Searchbar,
+  FAB,
+  Portal,
+  Modal,
+  TextInput,
+  Switch,
+  SegmentedButtons
+} from 'react-native-paper';
+import { 
+  fetchLessons, 
+  addLesson, 
+  updateLesson, 
+  deleteLesson 
+} from '../../services/lessonService';
+>>>>>>> Stashed changes
 
 export default function LessonManagementScreen() {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+<<<<<<< Updated upstream
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,6 +73,39 @@ export default function LessonManagementScreen() {
   const [snackbar, setSnackbar] = useState({ visible: false, message: '', error: false });
   const [confirmDialog, setConfirmDialog] = useState({ visible: false, lesson: null });
   const [menuVisible, setMenuVisible] = useState(false);
+=======
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [menuVisible, setMenuVisible] = useState({});
+  
+  // Form states
+  const [lessonForm, setLessonForm] = useState({
+    title: '',
+    description: '',
+    content: '',
+    difficulty: 'easy',
+    duration: 30,
+    isPublished: false,
+    order: 0,
+    tags: '',
+    videoUrl: '',
+    imageUrl: ''
+  });
+
+  const difficultyOptions = [
+    { value: 'easy', label: 'Dễ' },
+    { value: 'medium', label: 'Trung bình' },
+    { value: 'hard', label: 'Khó' }
+  ];
+
+  const filterOptions = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'published', label: 'Đã xuất bản' },
+    { value: 'draft', label: 'Nháp' }
+  ];
+>>>>>>> Stashed changes
 
   useEffect(() => {
     loadLessons();
@@ -51,6 +114,7 @@ export default function LessonManagementScreen() {
   const loadLessons = async () => {
     try {
       setLoading(true);
+<<<<<<< Updated upstream
       const data = await fetchLessons();
       setLessons(data || []);
     } catch (error) {
@@ -59,12 +123,19 @@ export default function LessonManagementScreen() {
         message: 'Không thể tải danh sách bài học: ' + error.message, 
         error: true 
       });
+=======
+      const lessonsData = await fetchLessons();
+      setLessons(lessonsData);
+    } catch (error) {
+      Alert.alert('Lỗi', error.message);
+>>>>>>> Stashed changes
     } finally {
       setLoading(false);
     }
   };
 
   const filteredLessons = lessons.filter(lesson => {
+<<<<<<< Updated upstream
     const matchSearch = 
       lesson.title?.toLowerCase().includes(search.toLowerCase()) ||
       lesson.subject?.toLowerCase().includes(search.toLowerCase()) ||
@@ -175,11 +246,115 @@ export default function LessonManagementScreen() {
       case 'medium': return 'Trung bình';
       case 'hard': return 'Khó';
       default: return 'Trung bình';
+=======
+    const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         lesson.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesFilter = filter === 'all' || 
+                         (filter === 'published' && lesson.isPublished) ||
+                         (filter === 'draft' && !lesson.isPublished);
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleAddLesson = () => {
+    setEditingLesson(null);
+    setLessonForm({
+      title: '',
+      description: '',
+      content: '',
+      difficulty: 'easy',
+      duration: 30,
+      isPublished: false,
+      order: lessons.length,
+      tags: '',
+      videoUrl: '',
+      imageUrl: ''
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleEditLesson = (lesson) => {
+    setEditingLesson(lesson);
+    setLessonForm({
+      title: lesson.title || '',
+      description: lesson.description || '',
+      content: lesson.content || '',
+      difficulty: lesson.difficulty || 'easy',
+      duration: lesson.duration || 30,
+      isPublished: lesson.isPublished || false,
+      order: lesson.order || 0,
+      tags: lesson.tags?.join(', ') || '',
+      videoUrl: lesson.videoUrl || '',
+      imageUrl: lesson.imageUrl || ''
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleSaveLesson = async () => {
+    try {
+      if (!lessonForm.title.trim()) {
+        Alert.alert('Lỗi', 'Vui lòng nhập tiêu đề bài học');
+        return;
+      }
+
+      const lessonData = {
+        ...lessonForm,
+        tags: lessonForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        duration: parseInt(lessonForm.duration) || 30
+      };
+
+      if (editingLesson) {
+        await updateLesson(editingLesson.id, lessonData);
+        Alert.alert('Thành công', 'Đã cập nhật bài học');
+      } else {
+        await addLesson(lessonData);
+        Alert.alert('Thành công', 'Đã thêm bài học mới');
+      }
+
+      setIsModalVisible(false);
+      loadLessons();
+    } catch (error) {
+      Alert.alert('Lỗi', error.message);
+    }
+  };
+
+  const handleDeleteLesson = (lesson) => {
+    Alert.alert(
+      'Xác nhận xóa',
+      `Bạn có chắc muốn xóa bài học "${lesson.title}"?`,
+      [
+        { text: 'Hủy', style: 'cancel' },
+        { 
+          text: 'Xóa', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteLesson(lesson.id);
+              Alert.alert('Thành công', 'Đã xóa bài học');
+              loadLessons();
+            } catch (error) {
+              Alert.alert('Lỗi', error.message);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const togglePublishLesson = async (lesson) => {
+    try {
+      await updateLesson(lesson.id, { isPublished: !lesson.isPublished });
+      loadLessons();
+    } catch (error) {
+      Alert.alert('Lỗi', error.message);
+>>>>>>> Stashed changes
     }
   };
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
+<<<<<<< Updated upstream
       case 'easy': return '#4caf50';
       case 'medium': return '#ff9800';
       case 'hard': return '#f44336';
@@ -266,6 +441,35 @@ export default function LessonManagementScreen() {
       </Card.Content>
     </Card>
   );
+=======
+      case 'easy': return '#4CAF50';
+      case 'medium': return '#FF9800';
+      case 'hard': return '#F44336';
+      default: return '#757575';
+    }
+  };
+
+  const getDifficultyLabel = (difficulty) => {
+    switch (difficulty) {
+      case 'easy': return 'Dễ';
+      case 'medium': return 'Trung bình';
+      case 'hard': return 'Khó';
+      default: return 'Không xác định';
+    }
+  };
+
+  const formatDuration = (duration) => {
+    return `${duration} phút`;
+  };
+
+  const showMenu = (lessonId) => {
+    setMenuVisible({ ...menuVisible, [lessonId]: true });
+  };
+
+  const hideMenu = (lessonId) => {
+    setMenuVisible({ ...menuVisible, [lessonId]: false });
+  };
+>>>>>>> Stashed changes
 
   if (loading) {
     return (
@@ -278,6 +482,7 @@ export default function LessonManagementScreen() {
 
   return (
     <View style={styles.container}>
+<<<<<<< Updated upstream
       <Surface style={styles.searchSection}>
         <TextInput
           mode="outlined"
@@ -440,6 +645,245 @@ export default function LessonManagementScreen() {
       >
         {snackbar.message}
       </Snackbar>
+=======
+      {/* Header */}
+      <Surface style={styles.header}>
+        <Title style={styles.headerTitle}>Quản lý bài học</Title>
+        <Text style={styles.headerSubtitle}>
+          Tổng số: {lessons.length} bài học
+        </Text>
+      </Surface>
+
+      {/* Search and Filter */}
+      <View style={styles.searchContainer}>
+        <Searchbar
+          placeholder="Tìm kiếm bài học..."
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={styles.searchBar}
+        />
+        <SegmentedButtons
+          value={filter}
+          onValueChange={setFilter}
+          buttons={filterOptions}
+          style={styles.filterButtons}
+        />
+      </View>
+
+      {/* Lessons List */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {filteredLessons.length === 0 ? (
+          <Card style={styles.emptyCard}>
+            <Card.Content>
+              <Text style={styles.emptyText}>
+                {searchQuery ? 'Không tìm thấy bài học nào' : 'Chưa có bài học nào'}
+              </Text>
+            </Card.Content>
+          </Card>
+        ) : (
+          filteredLessons.map((lesson) => (
+            <Card key={lesson.id} style={styles.lessonCard}>
+              <Card.Content>
+                <View style={styles.lessonHeader}>
+                  <View style={styles.lessonInfo}>
+                    <Title style={styles.lessonTitle}>{lesson.title}</Title>
+                    <Text style={styles.lessonDescription} numberOfLines={2}>
+                      {lesson.description}
+                    </Text>
+                    <View style={styles.lessonMeta}>
+                      <Chip 
+                        mode="outlined" 
+                        style={[styles.difficultyChip, { borderColor: getDifficultyColor(lesson.difficulty) }]}
+                        textStyle={{ color: getDifficultyColor(lesson.difficulty) }}
+                      >
+                        {getDifficultyLabel(lesson.difficulty)}
+                      </Chip>
+                      <Text style={styles.durationText}>{formatDuration(lesson.duration)}</Text>
+                      <Chip 
+                        mode={lesson.isPublished ? 'flat' : 'outlined'}
+                        style={lesson.isPublished ? styles.publishedChip : styles.draftChip}
+                      >
+                        {lesson.isPublished ? 'Đã xuất bản' : 'Nháp'}
+                      </Chip>
+                    </View>
+                    {lesson.tags && lesson.tags.length > 0 && (
+                      <View style={styles.tagsContainer}>
+                        {lesson.tags.map((tag, index) => (
+                          <Chip key={index} mode="outlined" style={styles.tagChip}>
+                            {tag}
+                          </Chip>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.lessonActions}>
+                    <Menu
+                      visible={menuVisible[lesson.id] || false}
+                      onDismiss={() => hideMenu(lesson.id)}
+                      anchor={
+                        <IconButton
+                          icon="dots-vertical"
+                          onPress={() => showMenu(lesson.id)}
+                        />
+                      }
+                    >
+                      <Menu.Item
+                        leadingIcon="pencil"
+                        title="Chỉnh sửa"
+                        onPress={() => {
+                          hideMenu(lesson.id);
+                          handleEditLesson(lesson);
+                        }}
+                      />
+                      <Menu.Item
+                        leadingIcon={lesson.isPublished ? "eye-off" : "eye"}
+                        title={lesson.isPublished ? "Ẩn" : "Xuất bản"}
+                        onPress={() => {
+                          hideMenu(lesson.id);
+                          togglePublishLesson(lesson);
+                        }}
+                      />
+                      <Menu.Item
+                        leadingIcon="delete"
+                        title="Xóa"
+                        onPress={() => {
+                          hideMenu(lesson.id);
+                          handleDeleteLesson(lesson);
+                        }}
+                      />
+                    </Menu>
+                  </View>
+                </View>
+              </Card.Content>
+            </Card>
+          ))
+        )}
+      </ScrollView>
+
+      {/* Add Lesson FAB */}
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={handleAddLesson}
+        label="Thêm bài học"
+      />
+
+      {/* Add/Edit Lesson Modal */}
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          onDismiss={() => setIsModalVisible(false)}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Title style={styles.modalTitle}>
+              {editingLesson ? 'Chỉnh sửa bài học' : 'Thêm bài học mới'}
+            </Title>
+
+            <TextInput
+              label="Tiêu đề bài học *"
+              value={lessonForm.title}
+              onChangeText={(text) => setLessonForm({ ...lessonForm, title: text })}
+              style={styles.input}
+              mode="outlined"
+            />
+
+            <TextInput
+              label="Mô tả"
+              value={lessonForm.description}
+              onChangeText={(text) => setLessonForm({ ...lessonForm, description: text })}
+              style={styles.input}
+              mode="outlined"
+              multiline
+              numberOfLines={3}
+            />
+
+            <TextInput
+              label="Nội dung bài học"
+              value={lessonForm.content}
+              onChangeText={(text) => setLessonForm({ ...lessonForm, content: text })}
+              style={styles.input}
+              mode="outlined"
+              multiline
+              numberOfLines={6}
+            />
+
+            <View style={styles.rowContainer}>
+              <View style={styles.halfWidth}>
+                <SegmentedButtons
+                  value={lessonForm.difficulty}
+                  onValueChange={(value) => setLessonForm({ ...lessonForm, difficulty: value })}
+                  buttons={difficultyOptions}
+                  style={styles.segmentedButtons}
+                />
+              </View>
+              <View style={styles.halfWidth}>
+                <TextInput
+                  label="Thời lượng (phút)"
+                  value={lessonForm.duration.toString()}
+                  onChangeText={(text) => setLessonForm({ ...lessonForm, duration: parseInt(text) || 0 })}
+                  style={styles.input}
+                  mode="outlined"
+                  keyboardType="numeric"
+                />
+              </View>
+            </View>
+
+            <TextInput
+              label="Tags (phân cách bằng dấu phẩy)"
+              value={lessonForm.tags}
+              onChangeText={(text) => setLessonForm({ ...lessonForm, tags: text })}
+              style={styles.input}
+              mode="outlined"
+              placeholder="ví dụ: javascript, react, frontend"
+            />
+
+            <TextInput
+              label="URL Video"
+              value={lessonForm.videoUrl}
+              onChangeText={(text) => setLessonForm({ ...lessonForm, videoUrl: text })}
+              style={styles.input}
+              mode="outlined"
+              placeholder="https://..."
+            />
+
+            <TextInput
+              label="URL Hình ảnh"
+              value={lessonForm.imageUrl}
+              onChangeText={(text) => setLessonForm({ ...lessonForm, imageUrl: text })}
+              style={styles.input}
+              mode="outlined"
+              placeholder="https://..."
+            />
+
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Xuất bản ngay</Text>
+              <Switch
+                value={lessonForm.isPublished}
+                onValueChange={(value) => setLessonForm({ ...lessonForm, isPublished: value })}
+              />
+            </View>
+
+            <View style={styles.modalActions}>
+              <Button
+                mode="outlined"
+                onPress={() => setIsModalVisible(false)}
+                style={styles.cancelButton}
+              >
+                Hủy
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleSaveLesson}
+                style={styles.saveButton}
+              >
+                {editingLesson ? 'Cập nhật' : 'Thêm'}
+              </Button>
+            </View>
+          </ScrollView>
+        </Modal>
+      </Portal>
+>>>>>>> Stashed changes
     </View>
   );
 }
@@ -458,6 +902,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
   },
+<<<<<<< Updated upstream
   searchSection: {
     flexDirection: 'row',
     padding: 16,
@@ -473,6 +918,37 @@ const styles = StyleSheet.create({
   },
   lessonCard: {
     marginBottom: 12,
+=======
+  header: {
+    padding: 16,
+    elevation: 2,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E7D32',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  searchContainer: {
+    padding: 16,
+  },
+  searchBar: {
+    marginBottom: 16,
+  },
+  filterButtons: {
+    marginBottom: 8,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  lessonCard: {
+    marginBottom: 16,
+>>>>>>> Stashed changes
     elevation: 2,
   },
   lessonHeader: {
@@ -483,11 +959,27 @@ const styles = StyleSheet.create({
   lessonInfo: {
     flex: 1,
   },
+<<<<<<< Updated upstream
   titleRow: {
+=======
+  lessonTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  lessonDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+  },
+  lessonMeta: {
+>>>>>>> Stashed changes
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
   },
+<<<<<<< Updated upstream
   orderAvatar: {
     marginRight: 12,
     backgroundColor: '#2196f3',
@@ -525,10 +1017,26 @@ const styles = StyleSheet.create({
   },
   detailChip: {
     marginRight: 4,
+=======
+  difficultyChip: {
+    marginRight: 8,
+  },
+  durationText: {
+    fontSize: 12,
+    color: '#666',
+    marginRight: 8,
+  },
+  publishedChip: {
+    backgroundColor: '#E8F5E8',
+  },
+  draftChip: {
+    backgroundColor: '#FFF3E0',
+>>>>>>> Stashed changes
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+<<<<<<< Updated upstream
     gap: 4,
     marginTop: 8,
     alignItems: 'center',
@@ -568,6 +1076,25 @@ const styles = StyleSheet.create({
   },
   emptyButton: {
     marginTop: 8,
+=======
+  },
+  tagChip: {
+    marginRight: 4,
+    marginBottom: 4,
+  },
+  lessonActions: {
+    marginLeft: 8,
+  },
+  emptyCard: {
+    marginTop: 32,
+    elevation: 2,
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#666',
+    fontStyle: 'italic',
+>>>>>>> Stashed changes
   },
   fab: {
     position: 'absolute',
@@ -575,12 +1102,28 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+<<<<<<< Updated upstream
   modalContent: {
     paddingHorizontal: 24,
+=======
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    margin: 20,
+    borderRadius: 8,
+    maxHeight: '90%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+>>>>>>> Stashed changes
   },
   input: {
     marginBottom: 16,
   },
+<<<<<<< Updated upstream
   row: {
     flexDirection: 'row',
     gap: 12,
@@ -595,3 +1138,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#4caf50',
   },
 }); 
+=======
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  halfWidth: {
+    width: '48%',
+  },
+  segmentedButtons: {
+    marginBottom: 16,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  cancelButton: {
+    flex: 1,
+    marginRight: 8,
+  },
+  saveButton: {
+    flex: 1,
+    marginLeft: 8,
+  },
+});
+>>>>>>> Stashed changes

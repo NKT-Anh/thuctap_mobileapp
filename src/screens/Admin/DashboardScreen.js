@@ -67,7 +67,11 @@ export default function DashboardScreen({ navigation }) {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
       <Card style={styles.welcomeCard}>
         <Card.Content>
+<<<<<<< Updated upstream
           <Title style={styles.welcomeTitle}>Bảng điều khiển Admin</Title>
+=======
+          <Title style={styles.welcomeTitle}>Admin</Title>
+>>>>>>> Stashed changes
           <Paragraph style={styles.welcomeText}>
             Chào mừng đến với hệ thống quản trị KICODE!
           </Paragraph>

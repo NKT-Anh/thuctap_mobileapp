@@ -9,16 +9,23 @@ import {
   Surface,
   Divider,
   Chip,
+<<<<<<< Updated upstream
   List,
+=======
+>>>>>>> Stashed changes
   Avatar,
   ProgressBar
 } from 'react-native-paper';
 import { 
   getSystemStatistics, 
   getUserStatistics, 
+<<<<<<< Updated upstream
   getExamStatistics, 
   getLessonStatistics,
   getPerformanceStatistics
+=======
+  getExamStatistics
+>>>>>>> Stashed changes
 } from '../../services/statisticService';
 
 const { width } = Dimensions.get('window');
@@ -27,12 +34,21 @@ export default function StatisticScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+<<<<<<< Updated upstream
   const [statistics, setStatistics] = useState({
     system: {},
     users: {},
     exams: {},
     lessons: {},
     performance: {}
+=======
+  const [error, setError] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
+  const [statistics, setStatistics] = useState({
+    system: {},
+    users: {},
+    exams: {}
+>>>>>>> Stashed changes
   });
 
   const periods = [
@@ -49,6 +65,7 @@ export default function StatisticScreen() {
   const loadStatistics = async () => {
     try {
       setLoading(true);
+<<<<<<< Updated upstream
       
       const [systemStats, userStats, examStats, lessonStats, performanceStats] = await Promise.all([
         getSystemStatistics(selectedPeriod).catch(() => ({})),
@@ -67,6 +84,76 @@ export default function StatisticScreen() {
       });
     } catch (error) {
       console.error('Lỗi tải thống kê:', error);
+=======
+      setError(null);
+      setIsOffline(false);
+      
+      // Thêm timeout cho các request Firebase
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Connection timeout')), 15000)
+      );
+
+      const statisticsPromise = Promise.all([
+        getSystemStatistics(selectedPeriod).catch(() => ({})),
+        getUserStatistics(selectedPeriod).catch(() => ({})),
+        getExamStatistics(selectedPeriod).catch(() => ({}))
+      ]);
+
+      const [systemStats, userStats, examStats] = await Promise.race([
+        statisticsPromise,
+        timeoutPromise
+      ]);
+
+      console.log('Dữ liệu thống kê nhận được:', {
+        system: systemStats,
+        users: userStats,
+        exams: examStats
+      });
+
+      setStatistics({
+        system: systemStats,
+        users: userStats,
+        exams: examStats
+      });
+    } catch (error) {
+      console.error('Lỗi tải thống kê:', error);
+      
+      if (error.message.includes('timeout') || error.message.includes('network') || error.message.includes('offline')) {
+        setIsOffline(true);
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet.');
+        
+        // Sử dụng dữ liệu mặc định khi offline
+        setStatistics({
+          system: {
+            totalUsers: 0,
+            activeUsers: 0,
+            totalExams: 0,
+            totalLessons: 0,
+            newUsersThisPeriod: 0,
+            newExamsThisPeriod: 0,
+            newLessonsThisPeriod: 0
+          },
+          users: {
+            totalStudents: 0,
+            totalTeachers: 0,
+            totalAdmins: 0,
+            loginsThisPeriod: 0,
+            newRegistrations: 0,
+            topStudents: []
+          },
+          exams: {
+            totalAttempts: 0,
+            averageScore: 0,
+            passRate: 0,
+            easyExams: 0,
+            mediumExams: 0,
+            hardExams: 0
+          }
+        });
+      } else {
+        setError('Có lỗi xảy ra khi tải thống kê. Vui lòng thử lại.');
+      }
+>>>>>>> Stashed changes
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -103,6 +190,35 @@ export default function StatisticScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+<<<<<<< Updated upstream
+=======
+      {/* Error Banner */}
+      {error && (
+        <Surface style={[styles.errorBanner, isOffline && styles.offlineBanner]}>
+          <Text style={styles.errorText}>
+            {isOffline ? '📡 ' : '⚠️ '}{error}
+          </Text>
+          <Button 
+            mode="text" 
+            onPress={loadStatistics}
+            textColor={isOffline ? '#FF6B35' : '#D32F2F'}
+            style={styles.retryButton}
+          >
+            Thử lại
+          </Button>
+        </Surface>
+      )}
+
+      {/* Offline indicator */}
+      {isOffline && (
+        <Surface style={styles.offlineIndicator}>
+          <Text style={styles.offlineText}>
+            Đang hiển thị dữ liệu offline - Một số thông tin có thể không cập nhật
+          </Text>
+        </Surface>
+      )}
+
+>>>>>>> Stashed changes
       {/* Header với period selector */}
       <Surface style={styles.headerSection}>
         <Title style={styles.headerTitle}>Thống kê & Báo cáo</Title>
@@ -114,6 +230,10 @@ export default function StatisticScreen() {
               selected={selectedPeriod === period.value}
               onPress={() => setSelectedPeriod(period.value)}
               style={styles.periodChip}
+<<<<<<< Updated upstream
+=======
+              disabled={isOffline}
+>>>>>>> Stashed changes
             >
               {period.label}
             </Chip>
@@ -125,6 +245,10 @@ export default function StatisticScreen() {
           loading={refreshing}
           icon="refresh"
           style={styles.refreshButton}
+<<<<<<< Updated upstream
+=======
+          disabled={isOffline}
+>>>>>>> Stashed changes
         >
           Làm mới
         </Button>
@@ -149,7 +273,11 @@ export default function StatisticScreen() {
               <Text style={styles.statNumber}>{formatNumber(statistics.system.activeUsers)}</Text>
               <Text style={styles.statLabel}>Hoạt động</Text>
               <Text style={styles.statChange}>
+<<<<<<< Updated upstream
                 {formatPercentage((statistics.system.activeUsers / statistics.system.totalUsers) * 100)}
+=======
+                {formatPercentage((statistics.system.activeUsers / (statistics.system.totalUsers || 1)) * 100)}
+>>>>>>> Stashed changes
               </Text>
             </Surface>
 
@@ -194,6 +322,7 @@ export default function StatisticScreen() {
           </View>
 
           <Text style={styles.sectionSubtitle}>Hoạt động người dùng</Text>
+<<<<<<< Updated upstream
           <List.Item
             title="Đăng nhập trong kỳ"
             description={`${statistics.users.loginsThisPeriod || 0} lượt đăng nhập`}
@@ -204,6 +333,24 @@ export default function StatisticScreen() {
             description={`${statistics.users.newRegistrations || 0} đăng ký mới`}
             left={() => <Avatar.Icon size={40} icon="account-plus" />}
           />
+=======
+          <View style={styles.activityContainer}>
+            <View style={styles.activityItem}>
+              <Avatar.Icon size={40} icon="login" style={styles.activityIcon} />
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>Đăng nhập trong kỳ</Text>
+                <Text style={styles.activityDescription}>{statistics.users.loginsThisPeriod || 0} lượt đăng nhập</Text>
+              </View>
+            </View>
+            <View style={styles.activityItem}>
+              <Avatar.Icon size={40} icon="account-plus" style={styles.activityIcon} />
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>Người dùng mới đăng ký</Text>
+                <Text style={styles.activityDescription}>{statistics.users.newRegistrations || 0} đăng ký mới</Text>
+              </View>
+            </View>
+          </View>
+>>>>>>> Stashed changes
         </Card.Content>
       </Card>
 
@@ -233,6 +380,7 @@ export default function StatisticScreen() {
           <Text style={styles.sectionSubtitle}>Phân bố độ khó</Text>
           <View style={styles.difficultyStats}>
             <View style={styles.difficultyItem}>
+<<<<<<< Updated upstream
               <Text style={styles.difficultyLabel}>Dễ</Text>
               <ProgressBar 
                 progress={(statistics.exams.easyExams || 0) / (statistics.system.totalExams || 1)} 
@@ -307,6 +455,59 @@ export default function StatisticScreen() {
             <View style={styles.performanceItem}>
               <Text style={styles.performanceLabel}>Lỗi hệ thống</Text>
               <Text style={styles.performanceValue}>{statistics.performance.errors || 0}</Text>
+=======
+              <View style={styles.difficultyHeader}>
+                <Avatar.Icon size={32} icon="weather-sunny" style={styles.difficultyIcon} />
+                <Text style={styles.difficultyLabel}>Dễ</Text>
+              </View>
+              <View style={styles.difficultyContent}>
+                <Text style={styles.difficultyValue}>{statistics.exams.easyExams || 0} đề thi</Text>
+                <ProgressBar 
+                  progress={(statistics.exams.easyExams || 0) / (statistics.system.totalExams || 1)} 
+                  style={styles.progressBar}
+                  color="#4CAF50"
+                />
+                <Text style={styles.difficultyPercentage}>
+                  {formatPercentage((statistics.exams.easyExams || 0) / (statistics.system.totalExams || 1) * 100)}
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.difficultyItem}>
+              <View style={styles.difficultyHeader}>
+                <Avatar.Icon size={32} icon="weather-partly-cloudy" style={styles.difficultyIcon} />
+                <Text style={styles.difficultyLabel}>Trung bình</Text>
+              </View>
+              <View style={styles.difficultyContent}>
+                <Text style={styles.difficultyValue}>{statistics.exams.mediumExams || 0} đề thi</Text>
+                <ProgressBar 
+                  progress={(statistics.exams.mediumExams || 0) / (statistics.system.totalExams || 1)} 
+                  style={styles.progressBar}
+                  color="#FF9800"
+                />
+                <Text style={styles.difficultyPercentage}>
+                  {formatPercentage((statistics.exams.mediumExams || 0) / (statistics.system.totalExams || 1) * 100)}
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.difficultyItem}>
+              <View style={styles.difficultyHeader}>
+                <Avatar.Icon size={32} icon="weather-lightning" style={styles.difficultyIcon} />
+                <Text style={styles.difficultyLabel}>Khó</Text>
+              </View>
+              <View style={styles.difficultyContent}>
+                <Text style={styles.difficultyValue}>{statistics.exams.hardExams || 0} đề thi</Text>
+                <ProgressBar 
+                  progress={(statistics.exams.hardExams || 0) / (statistics.system.totalExams || 1)} 
+                  style={styles.progressBar}
+                  color="#F44336"
+                />
+                <Text style={styles.difficultyPercentage}>
+                  {formatPercentage((statistics.exams.hardExams || 0) / (statistics.system.totalExams || 1) * 100)}
+                </Text>
+              </View>
+>>>>>>> Stashed changes
             </View>
           </View>
         </Card.Content>
@@ -319,6 +520,7 @@ export default function StatisticScreen() {
           <Divider style={styles.divider} />
           
           <Text style={styles.sectionSubtitle}>Top học sinh xuất sắc</Text>
+<<<<<<< Updated upstream
           {(statistics.users.topStudents || []).map((student, index) => (
             <List.Item
               key={student.id}
@@ -332,6 +534,26 @@ export default function StatisticScreen() {
           {(!statistics.users.topStudents || statistics.users.topStudents.length === 0) && (
             <Text style={styles.noDataText}>Chưa có dữ liệu bảng xếp hạng</Text>
           )}
+=======
+          <View style={styles.topStudentsContainer}>
+            {(statistics.users.topStudents || []).map((student, index) => (
+              <View key={student.id} style={styles.topStudentItem}>
+                <Avatar.Text size={40} label={(index + 1).toString()} style={styles.studentRank} />
+                <View style={styles.studentInfo}>
+                  <Text style={styles.studentName}>{student.name}</Text>
+                  <Text style={styles.studentScore}>Điểm TB: {student.averageScore?.toFixed(1) || 0}</Text>
+                </View>
+                <Chip mode="outlined" style={styles.studentChip}>
+                  {student.completedExams || 0} bài thi
+                </Chip>
+              </View>
+            ))}
+            
+            {(!statistics.users.topStudents || statistics.users.topStudents.length === 0) && (
+              <Text style={styles.noDataText}>Chưa có dữ liệu bảng xếp hạng</Text>
+            )}
+          </View>
+>>>>>>> Stashed changes
         </Card.Content>
       </Card>
     </ScrollView>
@@ -378,6 +600,46 @@ const styles = StyleSheet.create({
   refreshButton: {
     alignSelf: 'flex-start',
   },
+<<<<<<< Updated upstream
+=======
+  errorBanner: {
+    backgroundColor: '#FFEBEE',
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderLeftWidth: 4,
+    borderLeftColor: '#D32F2F',
+  },
+  offlineBanner: {
+    backgroundColor: '#FFF3E0',
+    borderLeftColor: '#FF6B35',
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#D32F2F',
+    marginRight: 8,
+  },
+  retryButton: {
+    minWidth: 80,
+  },
+  offlineIndicator: {
+    backgroundColor: '#E3F2FD',
+    padding: 12,
+    marginBottom: 16,
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196F3',
+  },
+  offlineText: {
+    fontSize: 12,
+    color: '#1976D2',
+    textAlign: 'center',
+  },
+>>>>>>> Stashed changes
   card: {
     marginBottom: 16,
     elevation: 4,
@@ -385,6 +647,7 @@ const styles = StyleSheet.create({
   divider: {
     marginVertical: 16,
   },
+<<<<<<< Updated upstream
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -394,6 +657,20 @@ const styles = StyleSheet.create({
     width: (width - 48) / 2,
     padding: 16,
     marginBottom: 12,
+=======
+  smallDivider: {
+    marginVertical: 12,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  statCard: {
+    width: (width - 64) / 4,
+    padding: 12,
+    marginBottom: 8,
+>>>>>>> Stashed changes
     borderRadius: 12,
     alignItems: 'center',
     elevation: 2,
@@ -411,18 +688,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#E1F5FE',
   },
   statNumber: {
+<<<<<<< Updated upstream
     fontSize: 28,
+=======
+    fontSize: 22,
+>>>>>>> Stashed changes
     fontWeight: 'bold',
     color: '#333',
   },
   statLabel: {
+<<<<<<< Updated upstream
     fontSize: 14,
+=======
+    fontSize: 12,
+>>>>>>> Stashed changes
     color: '#666',
     textAlign: 'center',
     marginTop: 4,
   },
   statChange: {
+<<<<<<< Updated upstream
     fontSize: 12,
+=======
+    fontSize: 10,
+>>>>>>> Stashed changes
     color: '#4caf50',
     marginTop: 4,
   },
@@ -451,6 +740,37 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+<<<<<<< Updated upstream
+=======
+  activityContainer: {
+    marginVertical: 16,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 8,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 8,
+  },
+  activityIcon: {
+    marginRight: 16,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  activityDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+>>>>>>> Stashed changes
   examStatsContainer: {
     marginVertical: 16,
   },
@@ -473,10 +793,21 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   difficultyItem: {
+<<<<<<< Updated upstream
+=======
+    backgroundColor: '#FAFAFA',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 1,
+  },
+  difficultyHeader: {
+>>>>>>> Stashed changes
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
   },
+<<<<<<< Updated upstream
   difficultyLabel: {
     width: 80,
     fontSize: 14,
@@ -493,6 +824,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
+=======
+  difficultyIcon: {
+    marginRight: 12,
+  },
+  difficultyLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  difficultyContent: {
+    paddingLeft: 44,
+  },
+  difficultyValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  difficultyPercentage: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    textAlign: 'right',
+  },
+  progressBar: {
+    height: 8,
+    marginVertical: 8,
+    borderRadius: 4,
+>>>>>>> Stashed changes
   },
   performanceContainer: {
     flexDirection: 'row',
@@ -513,10 +873,48 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+<<<<<<< Updated upstream
+=======
+  topStudentsContainer: {
+    marginVertical: 16,
+  },
+  topStudentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 8,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 8,
+  },
+  studentRank: {
+    marginRight: 16,
+  },
+  studentInfo: {
+    flex: 1,
+  },
+  studentName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  studentScore: {
+    fontSize: 14,
+    color: '#666',
+  },
+  studentChip: {
+    marginLeft: 8,
+  },
+>>>>>>> Stashed changes
   noDataText: {
     textAlign: 'center',
     color: '#666',
     fontStyle: 'italic',
     paddingVertical: 16,
   },
+<<<<<<< Updated upstream
 }); 
+=======
+});
+>>>>>>> Stashed changes

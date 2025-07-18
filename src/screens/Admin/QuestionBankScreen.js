@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, FlatList, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, Modal } from 'react-native';
 import { addAdminQuestion, fetchQuestions } from '../../services/questionService';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -66,11 +66,13 @@ export default function QuestionBankScreen() {
 
   const doImport = async () => {
     if (!importFile) return;
+    setLoading(true);
     try {
       const fileUri = importFile.uri;
       const fileName = importFile.name || '';
       const content = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.UTF8 });
       let imported = 0, failed = 0;
+      
       if (fileName.endsWith('.json')) {
         let arr;
         try {
@@ -78,54 +80,115 @@ export default function QuestionBankScreen() {
         } catch (e) {
           Alert.alert('Lỗi', 'File JSON không hợp lệ!');
           setImportModal(false);
+          setLoading(false);
           return;
         }
         if (!Array.isArray(arr)) {
           Alert.alert('Lỗi', 'File JSON phải là mảng các câu hỏi!');
           setImportModal(false);
+          setLoading(false);
           return;
         }
         for (const q of arr) {
-          if (!q.content || !q.options || typeof q.answer !== 'number') { failed++; continue; }
+          // Kiểm tra dữ liệu đầu vào
+          if (!q.content || !q.options || !Array.isArray(q.options) || q.options.length !== 4 || typeof q.answer !== 'number' || q.answer < 0 || q.answer > 3) { 
+            failed++; 
+            continue; 
+          }
+          // Kiểm tra options không rỗng
+          if (q.options.some(opt => !opt || typeof opt !== 'string' || !opt.trim())) {
+            failed++;
+            continue;
+          }
           try {
             await addAdminQuestion({
-              ...q,
+              content: q.content.trim(),
+              options: q.options.map(opt => opt.trim()),
+              answer: q.answer,
               topic: q.topic || importTopic,
               level: q.level || importLevel,
             });
             imported++;
-          } catch { failed++; }
+          } catch (e) {
+            console.error('Error adding question:', e);
+            failed++;
+          }
         }
       } else if (fileName.endsWith('.csv') || fileName.endsWith('.txt')) {
         const lines = content.split(/\r?\n/).filter(l => l.trim());
-        if (lines.length < 2) { Alert.alert('Lỗi', 'File CSV không có dữ liệu!'); setImportModal(false); return; }
-        const header = lines[0].split(',').map(h => h.trim());
+        if (lines.length < 2) { 
+          Alert.alert('Lỗi', 'File CSV không có dữ liệu!'); 
+          setImportModal(false); 
+          setLoading(false);
+          return; 
+        }
+        
+        const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const requiredHeaders = ['content', 'optiona', 'optionb', 'optionc', 'optiond', 'answer'];
+        const missingHeaders = requiredHeaders.filter(h => !header.includes(h));
+        
+        if (missingHeaders.length > 0) {
+          Alert.alert('Lỗi', `File CSV thiếu các cột: ${missingHeaders.join(', ')}`);
+          setImportModal(false);
+          setLoading(false);
+          return;
+        }
+        
         for (let i = 1; i < lines.length; i++) {
-          const row = lines[i].split(',');
-          if (row.length < 7) { failed++; continue; }
+          const row = lines[i].split(',').map(cell => cell.trim());
+          if (row.length < 6) { failed++; continue; }
+          
+          const contentIndex = header.indexOf('content');
+          const optionAIndex = header.indexOf('optiona');
+          const optionBIndex = header.indexOf('optionb');
+          const optionCIndex = header.indexOf('optionc');
+          const optionDIndex = header.indexOf('optiond');
+          const answerIndex = header.indexOf('answer');
+          const topicIndex = header.indexOf('topic');
+          const levelIndex = header.indexOf('level');
+          
           const q = {
-            content: row[header.indexOf('content')] || '',
-            options: [row[header.indexOf('optionA')], row[header.indexOf('optionB')], row[header.indexOf('optionC')], row[header.indexOf('optionD')]],
-            answer: parseInt(row[header.indexOf('answer')], 10),
-            topic: row[header.indexOf('topic')] || importTopic,
-            level: row[header.indexOf('level')] || importLevel,
+            content: row[contentIndex] || '',
+            options: [
+              row[optionAIndex] || '',
+              row[optionBIndex] || '',
+              row[optionCIndex] || '',
+              row[optionDIndex] || ''
+            ],
+            answer: parseInt(row[answerIndex], 10),
+            topic: (topicIndex >= 0 ? row[topicIndex] : '') || importTopic,
+            level: (levelIndex >= 0 ? row[levelIndex] : '') || importLevel,
           };
-          if (!q.content || q.options.some(o => !o)) { failed++; continue; }
+          
+          // Validation
+          if (!q.content || q.options.some(o => !o) || isNaN(q.answer) || q.answer < 0 || q.answer > 3) { 
+            failed++; 
+            continue; 
+          }
+          
           try {
             await addAdminQuestion(q);
             imported++;
-          } catch { failed++; }
+          } catch (e) {
+            console.error('Error adding question:', e);
+            failed++;
+          }
         }
       } else {
         Alert.alert('Lỗi', 'Chỉ hỗ trợ file .json hoặc .csv!');
         setImportModal(false);
+        setLoading(false);
         return;
       }
+      
       setRefresh(r => !r);
       setImportModal(false);
+      setLoading(false);
       Alert.alert('Kết quả import', `Thành công: ${imported}, Lỗi: ${failed}`);
     } catch (e) {
+      console.error('Import error:', e);
       setImportModal(false);
+      setLoading(false);
       Alert.alert('Lỗi', e.message || 'Không thể import file!');
     }
   };
@@ -167,8 +230,14 @@ export default function QuestionBankScreen() {
               <TouchableOpacity onPress={() => setImportModal(false)} style={[styles.addBtn, { backgroundColor: '#ccc', marginRight: 10 }]}>
                 <Text style={{ color: '#333', fontWeight: 'bold' }}>Hủy</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={doImport} style={styles.addBtn}>
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Import</Text>
+              <TouchableOpacity 
+                onPress={doImport} 
+                style={[styles.addBtn, loading && { opacity: 0.6 }]}
+                disabled={loading}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                  {loading ? 'Đang import...' : 'Import'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -235,12 +304,9 @@ export default function QuestionBankScreen() {
       {questions.length === 0 ? (
         <Text style={{ color: '#888', fontStyle: 'italic' }}>Chưa có câu hỏi nào trong ngân hàng admin.</Text>
       ) : (
-        <FlatList
-          data={questions}
-          keyExtractor={item => item.id}
-          style={{ width: '100%' }}
-          renderItem={({ item }) => (
-            <View style={styles.qBox}>
+        <View style={{ width: '100%' }}>
+          {questions.map((item) => (
+            <View key={item.id} style={styles.qBox}>
               <Text style={styles.qContent}>{item.content}</Text>
               {item.options && item.options.map((opt, idx) => (
                 <Text key={idx} style={{ marginLeft: 12, color: idx === item.answer ? '#007AFF' : '#333' }}>
@@ -252,8 +318,8 @@ export default function QuestionBankScreen() {
                 <Text style={[styles.qMeta, { marginLeft: 16 }]}>Cấp độ: {item.level}</Text>
               </View>
             </View>
-          )}
-        />
+          ))}
+        </View>
       )}
     </ScrollView>
   );
